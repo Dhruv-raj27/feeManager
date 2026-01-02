@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { initDB } from "./db/initDB";
+import { initAdminUser } from "./auth/initAdmin";
+import authRoutes from "./routes/authRoutes";
 
 const app = express();
 const PORT = 3001;
@@ -8,12 +10,27 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json());
 
-initDB();
+async function startServer() {
+  // Initialize DB
+  initDB();
 
-app.get("/health", (_, res) => {
-    res.json({status: "Backend running"});
-});
+  // Ensure default admin exists
+  await initAdminUser();
 
-app.listen(PORT, () => {
+  // Routes
+  app.use("/auth", authRoutes);
+
+  app.get("/health", (_req, res) => {
+    res.json({ status: "Backend running" });
+  });
+
+  app.listen(PORT, () => {
     console.log(`Backend running on http://localhost:${PORT}`);
+  });
+}
+
+// 🚀 Start everything
+startServer().catch((err) => {
+  console.error("❌ Failed to start server:", err);
+  process.exit(1);
 });
