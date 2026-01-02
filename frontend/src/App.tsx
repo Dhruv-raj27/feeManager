@@ -1,20 +1,30 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider, useAuth } from "./auth/AuthContext";
+import Login from "./pages/Login";
+import ProtectedRoute from "./routes/ProtectedRoute"; 
+
+const Dashboard = () => {
+  const { user } = useAuth();
+  return <h2>Welcome, {user?.fullName} ({user?.role})</h2>;
+};
 
 function App() {
-  const [status, setStatus] = useState("");
-
-  useEffect(() => {
-    axios.get("http://localhost:3001/health")
-      .then(res => setStatus(res.data.status))
-      .catch(() => setStatus("Backend not reachable"));
-  }, []);
-
   return (
-    <div style={{ padding: 40 }}>
-      <h1>Fee Management System</h1>
-      <p>{status}</p>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
