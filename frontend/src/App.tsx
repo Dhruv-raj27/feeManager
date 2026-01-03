@@ -1,59 +1,43 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./auth/AuthContext";
-import Login from "./pages/Login";
+import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
-/* ---------------- Dashboard ---------------- */
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Students from "./pages/Students";
+import AppLayout from "./layouts/AppLayout";
+//import FeeStructure from "./pages/FeeStructure";
+//import Payments from "./pages/Payments";
 
-const Dashboard = () => {
-  const { user, logout } = useAuth();
-
-  return (
-    <div style={{ padding: 24 }}>
-      <h2>
-        Welcome, {user?.fullName} ({user?.role})
-      </h2>
-      <button onClick={logout}>Logout</button>
-    </div>
-  );
-};
-
-/* ---------------- Login Route Wrapper ----------------
-   Prevents logged-in users from seeing /login again
------------------------------------------------------- */
-
-const LoginRoute = () => {
-  const { user } = useAuth();
-
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <Login />;
-};
-
-/* ---------------- App ---------------- */
+/* ---------- App ---------- */
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Login */}
-          <Route path="/login" element={<LoginRoute />} />
 
-          {/* Protected Dashboard */}
+          {/* Public */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Protected App */}
           <Route
-            path="/"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <AppLayout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/students" element={<Students />} />
+            {/* <Route path="/fee-structure" element={<FeeStructure />} />
+                        <Route path="/payments" element={<Payments />} /> */}
+          </Route>
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>
