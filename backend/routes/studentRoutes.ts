@@ -1,110 +1,158 @@
 import { Router } from "express";
-import db from "../db/initDB";
 import { v4 as uuidv4 } from "uuid";
+import db from "../db/initDB";
+
+interface Student {
+  uuid: string;
+  name: string;
+  roll_number: string;
+  dob: string;
+  gender: string;
+  class_standard: string;
+  father_name?: string;
+  father_contact?: string;
+  mother_name?: string;
+  mother_contact?: string;
+  is_new_admission?: number;
+  created_at?: string;
+  updated_at?: string;
+}
 
 const router = Router();
 
-router.get("/", (req, res) => {
-    const students = db.prepare(`
-        SELECT
-            uuid,
-            name,
-            roll_number,
-            class_standard,
-            father_name,
-            father_contact,
-            created_at
-        FROM students
-        ORDER BY class_standard, roll_number
-        `).all();
+/* ---------------- CREATE STUDENT ---------------- */
+router.post("/", (req, res) => {
+  const {
+    name,
+    roll_number,
+    dob,
+    gender,
+    class_standard,
+    father_name,
+    father_contact,
+    mother_name,
+    mother_contact,
+    is_new_admission = 1,
+  } = req.body ?? {};
 
-        res.json(students);
+  if (!name || !roll_number || !dob || !gender || !class_standard) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  const uuid = uuidv4();
+
+  db.prepare(`
+    INSERT INTO students (
+      uuid, name, roll_number, dob, gender, class_standard,
+      father_name, father_contact, mother_name, mother_contact,
+      is_new_admission
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    uuid,
+    name,
+    roll_number,
+    dob,
+    gender,
+    class_standard,
+    father_name,
+    father_contact,
+    mother_name,
+    mother_contact,
+    is_new_admission
+  );
+
+  res.status(201).json({ uuid });
 });
 
-router.post("/", (req, res) => {
-    const {
-        name,
-        roll_number,
-        dob,
-        gender,
-        class_standard,
-        father_name,
-        father_contact,
-        mother_name,
-        mother_contact,
-    } = req.body;
+/* ---------------- GET ALL STUDENTS ---------------- */
+router.get("/", (_req, res) => {
+  const students = db.prepare(`
+    SELECT uuid, name, roll_number, class_standard,
+           father_name, father_contact, created_at
+    FROM students
+    ORDER BY created_at DESC
+  `).all();
 
-    if(!name || !roll_number || !dob || !gender || !class_standard) {
-        return res.status(400).json({ message: "Missing required fields"});
-    }
+  res.json(students);
+});
 
-    try {
-        const uuid = uuidv4();
+/* ---------------- GET SINGLE STUDENT ---------------- */
+router.get("/:uuid", (req, res) => {
+  const student = db
+    .prepare(`SELECT * FROM students WHERE uuid = ?`)
+    .get(req.params.uuid);
 
-        db.prepare(`
-            INSERT INTO students (
-                uuid,
-                name,
-                roll_number,
-                dob,
-                gender,
-                class_standard,
-                father_name,
-                father_contact,
-                mother_name,
-                mother_contact
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `).run(
-                    uuid,
-                    name,
-                    roll_number,
-                    dob,
-                    gender,
-                    class_standard,
-                    father_name,
-                    father_contact,
-                    mother_name,
-                    mother_contact
-                );
-            
-            res.status(201).json({ uuid });
-        } catch (err : any) {
-            if(err.code === "SQLITE_CONSTRAINT") {
-                return res.status(409).json({ message: "Roll number already exists"});
-            }
-            res.status(500).json({ message: "Failed to create a student" });
-        }
+  if (!student) {
+    return res.status(404).json({ message: "Student not found" });
+  }
+
+  res.json(student);
 });
 
 router.put("/:uuid", (req, res) => {
-    const { uuid } = req.params;
+  const existing = db
+    .prepare("SELECT * FROM students WHERE uuid = ?")
+    .get(req.params.uuid) as Student | undefined;
 
-    const result = db.prepare(`
-        UPDATE students
-        SET
-            name = ?,
-            class_standard = ?,
-            father_name = ?,
-            father_contact = ?,
-            mother_name = ?,
-            mother_contact = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE uuid = ?
+  if (!existing) {
+    return res.status(404).json({ message: "Student not found" });
+  }
+
+  try {
+    db.prepare(`
+      UPDATE students SET
+        name = ?,
+        roll_number = ?,
+        dob = ?,
+        gender = ?,
+        class_standard = ?,
+        father_name = ?,
+        father_contact = ?,
+        mother_name = ?,
+        mother_contact = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE uuid = ?
     `).run(
-        req.body.name,
-        req.body.class_standard,
-        req.body.father_name,
-        req.body.father_contact,
-        req.body.mother_name,
-        req.body.mother_contact,
-        uuid
+      req.body.name ?? existing.name,
+      req.body.roll_number ?? existing.roll_number,
+      req.body.dob ?? existing.dob,
+      req.body.gender ?? existing.gender,
+      req.body.class_standard ?? existing.class_standard,
+      req.body.father_name ?? existing.father_name,
+      req.body.father_contact ?? existing.father_contact,
+      req.body.mother_name ?? existing.mother_name,
+      req.body.mother_contact ?? existing.mother_contact,
+      req.params.uuid
     );
 
-    if(result.changes === 0) {
-        return res.status(404).json({ message: "Student not found" });
-    }
-
-    res.json({ success: true});
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error("UPDATE ERROR:", err.message);
+    res.status(400).json({ message: err.message });
+  }
 });
+
+
+
+/* ---------------- DELETE STUDENT ---------------- */
+// DELETE student by UUID
+router.delete("/:uuid", (req, res) => {
+  const { uuid } = req.params;
+
+  if (!uuid) {
+    return res.status(400).json({ message: "Student UUID required" });
+  }
+
+  const result = db
+    .prepare("DELETE FROM students WHERE uuid = ?")
+    .run(uuid);
+
+  if (result.changes === 0) {
+    return res.status(404).json({ message: "Student not found" });
+  }
+
+  res.json({ message: "Student deleted successfully" });
+});
+
 
 export default router;
