@@ -6,7 +6,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Students from "./pages/Students";
 import AppLayout from "./layouts/AppLayout";
-//import FeeStructure from "./pages/FeeStructure";
+import FeeStructure from "./pages/FeeStructure";
 //import Payments from "./pages/Payments";
 
 /* ---------- App ---------- */
@@ -31,8 +31,8 @@ function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/students" element={<Students />} />
-            {/* <Route path="/fee-structure" element={<FeeStructure />} />
-                        <Route path="/payments" element={<Payments />} /> */}
+            <Route path="/fee-structure" element={<FeeStructure />} />
+            {/* <Route path="/payments" element={<Payments />} /> */}
           </Route>
 
           {/* Fallback */}

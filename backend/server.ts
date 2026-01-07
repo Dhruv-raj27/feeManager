@@ -5,6 +5,7 @@ import { initAdminUser } from "./auth/initAdmin";
 import authRoutes from "./routes/authRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import studentRoutes from "./routes/studentRoutes";
+import feeStructureRoutes from "./routes/feeStructureRoutes";
 
 const app = express();
 const PORT = 3001;
@@ -23,6 +24,7 @@ async function startServer() {
   app.use("/auth", authRoutes);
   app.use("/students", studentRoutes);
   app.use("/dashboard", dashboardRoutes);
+  app.use("/fees", feeStructureRoutes);
 
 
   app.get("/health", (_req, res) => {
