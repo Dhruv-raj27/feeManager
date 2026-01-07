@@ -9,6 +9,7 @@ interface Student {
   dob: string;
   gender: string;
   class_standard: string;
+  admission_session: string;
   father_name?: string;
   father_contact?: string;
   mother_name?: string;
@@ -28,6 +29,7 @@ router.post("/", (req, res) => {
     dob,
     gender,
     class_standard,
+    admission_session,
     father_name,
     father_contact,
     mother_name,
@@ -35,7 +37,7 @@ router.post("/", (req, res) => {
     is_new_admission = 1,
   } = req.body ?? {};
 
-  if (!name || !roll_number || !dob || !gender || !class_standard) {
+  if (!name || !roll_number || !dob || !gender || !class_standard || !admission_session) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
@@ -43,10 +45,10 @@ router.post("/", (req, res) => {
 
   db.prepare(`
     INSERT INTO students (
-      uuid, name, roll_number, dob, gender, class_standard,
+      uuid, name, roll_number, dob, gender, class_standard, admission_session,
       father_name, father_contact, mother_name, mother_contact,
       is_new_admission
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     uuid,
     name,
@@ -54,6 +56,7 @@ router.post("/", (req, res) => {
     dob,
     gender,
     class_standard,
+    admission_session,
     father_name,
     father_contact,
     mother_name,
@@ -67,8 +70,16 @@ router.post("/", (req, res) => {
 /* ---------------- GET ALL STUDENTS ---------------- */
 router.get("/", (_req, res) => {
   const students = db.prepare(`
-    SELECT uuid, name, roll_number, class_standard,
-           father_name, father_contact, created_at
+    SELECT
+      uuid,
+      name,
+      roll_number,
+      class_standard,
+      admission_session,
+      is_new_admission,
+      father_name,
+      father_contact,
+      created_at
     FROM students
     ORDER BY created_at DESC
   `).all();
@@ -106,6 +117,7 @@ router.put("/:uuid", (req, res) => {
         dob = ?,
         gender = ?,
         class_standard = ?,
+        admission_session = ?,
         father_name = ?,
         father_contact = ?,
         mother_name = ?,
@@ -118,6 +130,7 @@ router.put("/:uuid", (req, res) => {
       req.body.dob ?? existing.dob,
       req.body.gender ?? existing.gender,
       req.body.class_standard ?? existing.class_standard,
+      req.body.admission_session ?? existing.admission_session,
       req.body.father_name ?? existing.father_name,
       req.body.father_contact ?? existing.father_contact,
       req.body.mother_name ?? existing.mother_name,

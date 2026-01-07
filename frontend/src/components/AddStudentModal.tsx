@@ -12,12 +12,14 @@ const AddStudentModal = ({ onSave, onClose }: Props) => {
     dob: "",
     gender: "",
     class_standard: "",
+    admission_session: "",
+    is_new_admission: 1,
     father_name: "",
     father_contact: "",
   });
 
   const handleSave = () => {
-    if (!form.name || !form.roll_number || !form.dob || !form.gender || !form.class_standard) {
+    if (!form.name || !form.roll_number || !form.dob || !form.gender || !form.class_standard || !form.admission_session) {
       alert("Please fill all required fields");
       return;
     }
@@ -46,6 +48,20 @@ const AddStudentModal = ({ onSave, onClose }: Props) => {
 
       <input placeholder="Class (LKG, UKG, 1...)" value={form.class_standard}
         onChange={e => setForm({ ...form, class_standard: e.target.value })} />
+
+      <input placeholder="Admission Session (e.g. 2025-2026)"
+        value={form.admission_session}
+        onChange={e => setForm({ ...form, admission_session: e.target.value })} />
+
+      <label>
+        <input type="checkbox"
+          checked={form.is_new_admission === 1}
+          onChange={e => setForm({
+            ...form,
+            is_new_admission: e.target.checked ? 1 : 0
+          })} />
+          New Admission
+      </label>
 
       <input placeholder="Father Name" value={form.father_name}
         onChange={e => setForm({ ...form, father_name: e.target.value })} />

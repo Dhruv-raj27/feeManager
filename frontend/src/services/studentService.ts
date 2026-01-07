@@ -9,6 +9,8 @@ export interface Student {
   dob: string;
   gender: string;
   class_standard: string;
+  admission_session: string;
+  is_new_admission?: number;
   father_name?: string;
   father_contact?: string;
   mother_name?: string;

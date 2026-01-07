@@ -25,8 +25,6 @@ async function startServer() {
   app.use("/students", studentRoutes);
   app.use("/dashboard", dashboardRoutes);
   app.use("/fees", feeStructureRoutes);
-
-
   app.get("/health", (_req, res) => {
     res.json({ status: "Backend running" });
   });

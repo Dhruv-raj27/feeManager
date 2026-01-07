@@ -41,6 +41,25 @@ const EditStudentModal = ({ student, onSave, onClose }: Props) => {
         onChange={e => setForm({ ...form, class_standard: e.target.value })}
         placeholder="Class Standard" />
 
+      <label>
+        <input
+          type="checkbox"
+          checked={form.is_new_admission === 1}
+          onChange={e =>
+            setForm({ ...form, is_new_admission: e.target.checked ? 1 : 0 })
+          }
+        />
+        New Admission
+      </label>
+
+      <input
+        placeholder="Admission Session"
+        value={form.admission_session}
+        onChange={e =>
+          setForm({ ...form, admission_session: e.target.value })
+        }
+      />      
+
       <input value={form.father_name || ""}
         onChange={e => setForm({ ...form, father_name: e.target.value })}
         placeholder="Father's Name" />
