@@ -28,6 +28,10 @@ const Sidebar = () => {
         Fee Structure
       </NavLink>
 
+      <NavLink to="/payments" style={linkStyle}>
+        Payments
+      </NavLink>
+
       <div style={{ marginTop: "auto" }}>
         <p>System Administrator</p>
         <button>Logout</button>

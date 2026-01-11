@@ -8,16 +8,19 @@ export interface FeeStructure {
     renewal_fee: number;
 }
 
-/* Fetch All */
-export const fetchFees = async (token: string): Promise<FeeStructure[]> => {
-    const res = await fetch(`${API_URL}/fees`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
+/* FETCH ALL FEES */
+export const fetchFeeStructures = async (token: string): Promise<FeeStructure[]> => {
+  const res = await fetch(`${API_URL}/fees`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-    if(!res.ok) throw new Error("Failed to fetch fee structure");
-    return res.json();
+  if (!res.ok) {
+    throw new Error("Failed to load fee structure");
+  }
+
+  return res.json();
 };
 
 /* ADD / UPDATE */

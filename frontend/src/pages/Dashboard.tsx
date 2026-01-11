@@ -29,10 +29,10 @@ const Dashboard = () => {
                 <p>No Transactions yet</p>
             ) : (
                 <ul>
-                    {data.recentTransactions.map((tx) => (
-                        <li key={tx.receipt_number}>
-                            {tx.payment_date} - {tx.student_name} (Class {tx.class_at_time_of_payment}) paid ₹{tx.amount_paid} - Receipt #{tx.receipt_number}
-                        </li>
+                    {data.recentTransactions.map((t, index) => (
+                    <li key={`${t.payment_date}-${t.student_name}-${index}`}>
+                        {new Date(t.payment_date).toLocaleString()} – {t.student_name} paid ₹{t.amount_paid}
+                    </li>
                     ))}
                 </ul>
             )}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-    fetchFees,
+    fetchFeeStructures,
     saveFeeStructure,
     deleteFeeStructure,
     type FeeStructure,
@@ -16,7 +16,7 @@ const FeeStructurePage = () => {
 
     const loadFees = async () => {
         if (!token) return;
-        const data = await fetchFees(token);
+        const data = await fetchFeeStructures(token);
         setFees(data);
     };
 
