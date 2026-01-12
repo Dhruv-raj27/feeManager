@@ -90,6 +90,7 @@ export const initDB = () => {
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       role TEXT NOT NULL,
+      current_academic_session TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
@@ -97,5 +98,24 @@ export const initDB = () => {
 
   console.log("Database initialized at:", dbPath);
 };
+
+// const columns = db.prepare(`PRAGMA table_info(school_settings)`).all();
+// const hasAcademicSession = columns.some(
+//   (col: any) => col.name === "current_academic_session"
+// );
+
+// if (!hasAcademicSession) {
+//   db.prepare(`
+//     ALTER TABLE school_settings
+//     ADD COLUMN current_academic_session TEXT
+//   `).run();
+// }
+
+// // Ensure single row exists
+// db.prepare(`
+//   INSERT OR IGNORE INTO school_settings (
+//     id, school_name, current_academic_session
+//   ) VALUES (1, 'My School', '2025-2026')
+// `).run();
 
 export default db;

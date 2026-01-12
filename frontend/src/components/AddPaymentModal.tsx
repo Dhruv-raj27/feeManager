@@ -19,7 +19,6 @@ const AddPaymentModal = ({
 
   const [form, setForm] = useState({
     student_uuid: "",
-    academic_session: "",
     quarter_number: "",
     payment_mode: "",
     discount_amount: 0,
@@ -82,7 +81,6 @@ const AddPaymentModal = ({
 
     if (
       !form.student_uuid ||
-      !form.academic_session ||
       !form.quarter_number ||
       !form.payment_mode
     ) {
@@ -92,17 +90,16 @@ const AddPaymentModal = ({
 
     setLoading(true);
     try {
-      await createPayment(
-        {
-          student_uuid: form.student_uuid,
-          academic_session: form.academic_session,
-          quarter_number: Number(form.quarter_number),
-          payment_mode: form.payment_mode,
-          discount_amount: form.discount_amount,
-          discount_reason: form.discount_reason || undefined,
-        },
-        token
-      );
+        await createPayment(
+          {
+            student_uuid: form.student_uuid,
+            quarter_number: Number(form.quarter_number),
+            payment_mode: form.payment_mode,
+            discount_amount: form.discount_amount,
+            discount_reason: form.discount_reason || undefined,
+          },
+          token
+        );
 
       onSuccess();
       onClose();
@@ -131,15 +128,6 @@ const AddPaymentModal = ({
           </option>
         ))}
       </select>
-
-      {/* Academic Session */}
-      <input
-        placeholder="Academic Session (e.g. 2025-2026)"
-        value={form.academic_session}
-        onChange={(e) =>
-          setForm({ ...form, academic_session: e.target.value })
-        }
-      />
 
       {/* Quarter */}
       <select

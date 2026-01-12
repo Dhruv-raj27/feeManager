@@ -32,6 +32,10 @@ const Sidebar = () => {
         Payments
       </NavLink>
 
+      <NavLink to="/settings" style={linkStyle}>
+        Settings
+      </NavLink>
+
       <div style={{ marginTop: "auto" }}>
         <p>System Administrator</p>
         <button>Logout</button>

@@ -8,7 +8,6 @@ const router = Router();
 router.post("/", (req, res) => {
   const {
     student_uuid,
-    academic_session,
     quarter_number,
     payment_mode,
     discount_amount = 0,
@@ -18,7 +17,6 @@ router.post("/", (req, res) => {
   /* ---- VALIDATION ---- */
   if (
     !student_uuid ||
-    !academic_session ||
     !payment_mode ||
     typeof quarter_number !== "number"
   ) {
@@ -28,6 +26,24 @@ router.post("/", (req, res) => {
   if (![1, 2, 3, 4].includes(quarter_number)) {
     return res.status(400).json({ message: "Invalid quarter number" });
   }
+
+  /* ---- FETCH CURRENT ACADEMIC SESSION ---- */
+  const settings = db
+    .prepare(`
+      SELECT current_academic_session
+      FROM school_settings
+      WHERE id = 1
+    `)
+    .get() as { current_academic_session: string } | undefined;
+
+  if (!settings || !settings.current_academic_session) {
+    return res.status(500).json({
+      message: "Current academic session not configured in settings",
+    });
+  }
+
+  const academic_session = settings.current_academic_session;
+
 
   /* ---- PREVENT DUPLICATE PAYMENT ---- */
   const existing = db

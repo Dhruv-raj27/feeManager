@@ -8,6 +8,7 @@ import Students from "./pages/Students";
 import AppLayout from "./layouts/AppLayout";
 import FeeStructure from "./pages/FeeStructure";
 import Payments from "./pages/Payments";
+import Settings from "./pages/Settings";
 
 /* ---------- App ---------- */
 
@@ -33,6 +34,7 @@ function App() {
             <Route path="/students" element={<Students />} />
             <Route path="/fee-structure" element={<FeeStructure />} />
             <Route path="/payments" element={<Payments />} />
+          <Route path="/settings" element={<Settings />} />
           </Route>
 
           {/* Fallback */}

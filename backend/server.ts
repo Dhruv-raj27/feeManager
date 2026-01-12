@@ -7,6 +7,7 @@ import dashboardRoutes from "./routes/dashboardRoutes";
 import studentRoutes from "./routes/studentRoutes";
 import feeStructureRoutes from "./routes/feeStructureRoutes";
 import paymentRoutes from "./routes/paymentRoutes";
+import settingsRoutes from "./routes/settingsRoutes";
 
 const app = express();
 const PORT = 3001;
@@ -27,6 +28,7 @@ async function startServer() {
   app.use("/dashboard", dashboardRoutes);
   app.use("/fees", feeStructureRoutes);
   app.use("/payments", paymentRoutes);
+  app.use("/settings", settingsRoutes);
   app.get("/health", (_req, res) => {
     res.json({ status: "Backend running" });
   });

@@ -2,7 +2,6 @@ const API_URL = "http://localhost:3001";
 
 export interface PaymentPayload {
   student_uuid: string;
-  academic_session: string;
   quarter_number: number;
   payment_mode: string;
   discount_amount?: number;
