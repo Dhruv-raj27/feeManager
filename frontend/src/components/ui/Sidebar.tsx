@@ -36,6 +36,10 @@ const Sidebar = () => {
         Settings
       </NavLink>
 
+      <NavLink to="/ledger" style={linkStyle}>
+        Ledger
+      </NavLink>
+
       <div style={{ marginTop: "auto" }}>
         <p>System Administrator</p>
         <button>Logout</button>

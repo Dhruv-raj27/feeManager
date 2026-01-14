@@ -9,6 +9,7 @@ import AppLayout from "./layouts/AppLayout";
 import FeeStructure from "./pages/FeeStructure";
 import Payments from "./pages/Payments";
 import Settings from "./pages/Settings";
+import Ledger from "./pages/Ledger";
 
 /* ---------- App ---------- */
 
@@ -34,7 +35,8 @@ function App() {
             <Route path="/students" element={<Students />} />
             <Route path="/fee-structure" element={<FeeStructure />} />
             <Route path="/payments" element={<Payments />} />
-          <Route path="/settings" element={<Settings />} />
+            <Route path="/ledger" element={<Ledger />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
 
           {/* Fallback */}

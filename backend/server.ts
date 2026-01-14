@@ -8,6 +8,8 @@ import studentRoutes from "./routes/studentRoutes";
 import feeStructureRoutes from "./routes/feeStructureRoutes";
 import paymentRoutes from "./routes/paymentRoutes";
 import settingsRoutes from "./routes/settingsRoutes";
+import ledgerRoutes from "./routes/ledgerRoutes";
+import receiptRoutes from "./routes/receiptRoutes";
 
 const app = express();
 const PORT = 3001;
@@ -29,6 +31,8 @@ async function startServer() {
   app.use("/fees", feeStructureRoutes);
   app.use("/payments", paymentRoutes);
   app.use("/settings", settingsRoutes);
+  app.use("/ledger", ledgerRoutes);
+  app.use("/receipts", receiptRoutes);
   app.get("/health", (_req, res) => {
     res.json({ status: "Backend running" });
   });
