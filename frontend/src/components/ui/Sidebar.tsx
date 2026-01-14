@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 
 const linkStyle = ({ isActive }: { isActive: boolean }) => ({
   display: "block",
@@ -12,6 +13,14 @@ const linkStyle = ({ isActive }: { isActive: boolean }) => ({
 });
 
 const Sidebar = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div style={sidebarStyle}>
       <h2>Fee Manager</h2>
@@ -41,8 +50,8 @@ const Sidebar = () => {
       </NavLink>
 
       <div style={{ marginTop: "auto" }}>
-        <p>System Administrator</p>
-        <button>Logout</button>
+        <p>{user?.fullName || "User"}</p>
+        <button onClick={handleLogout}>Logout</button>
       </div>
     </div>
   );

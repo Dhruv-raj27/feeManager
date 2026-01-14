@@ -1,4 +1,5 @@
 import { useDashboardSummary } from "../hooks/useDashboardSummary";
+import { formatToIST } from "../utils/dateUtils";
 
 const Dashboard = () => {
     const { data, loading, error } = useDashboardSummary();
@@ -31,7 +32,7 @@ const Dashboard = () => {
                 <ul>
                     {data.recentTransactions.map((t, index) => (
                     <li key={`${t.payment_date}-${t.student_name}-${index}`}>
-                        {new Date(t.payment_date).toLocaleString()} – {t.student_name} paid ₹{t.amount_paid}
+                        {formatToIST(t.payment_date)} – {t.student_name} paid ₹{t.amount_paid}
                     </li>
                     ))}
                 </ul>

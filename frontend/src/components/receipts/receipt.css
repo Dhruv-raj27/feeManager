@@ -1,0 +1,201 @@
+@page {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+.print-root {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.receipt-half {
+  width: 50%;
+  padding: 14px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.receipt-half h2 {
+  font-size: 18px;
+  margin: 0 0 4px 0;
+  font-weight: bold;
+  text-align: center;
+}
+
+.receipt-half h3 {
+  font-size: 16px;
+  margin: 8px 0 6px 0;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.receipt-half i {
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.receipt-half p {
+  margin: 5px 0;
+  line-height: 1.4;
+  font-size: 13px;
+}
+
+.receipt-half p:first-of-type {
+  text-align: center;
+}
+
+.receipt-half p:nth-of-type(2) {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.receipt-half hr {
+  margin: 8px 0;
+  border: none;
+  border-top: 1px solid #333;
+}
+
+.receipt-half b {
+  font-weight: 600;
+}
+
+.divider {
+  width: 2px;
+  border-left: 2px dashed #999;
+  margin: 0 4px;
+}
+
+.amount-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+  padding: 8px 0;
+  border-top: 2px solid #333;
+  border-bottom: 2px solid #333;
+}
+
+.signatory {
+  margin-top: 80px;
+  margin-right: 40px;
+  text-align: right;
+  font-size: 12px;
+}
+
+.signatory p {
+  margin: 3px 0;
+}
+
+.signatory p:last-child {
+  margin-top: 8px;
+}
+
+@media screen {
+  .print-root {
+    max-width: 100%;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-root,
+  .print-root * {
+    visibility: visible !important;
+  }
+
+  .print-root {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    page-break-after: avoid !important;
+  }
+
+  .receipt-half {
+    width: 50% !important;
+    padding: 14px 18px !important;
+    font-size: 13px !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+  }
+
+  .receipt-half h2 {
+    font-size: 18px !important;
+    margin: 0 0 4px 0 !important;
+    font-weight: bold !important;
+    text-align: center !important;
+  }
+
+  .receipt-half h3 {
+    font-size: 16px !important;
+    margin: 8px 0 6px 0 !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    text-decoration: underline !important;
+  }
+
+  .receipt-half i {
+    display: block !important;
+    text-align: center !important;
+    font-size: 13px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .receipt-half p {
+    margin: 5px 0 !important;
+    line-height: 1.4 !important;
+    font-size: 13px !important;
+  }
+
+  .receipt-half hr {
+    margin: 8px 0 !important;
+    border: none !important;
+    border-top: 1px solid #333 !important;
+  }
+
+  .divider {
+    width: 2px !important;
+    border-left: 2px dashed #666 !important;
+    margin: 0 6px !important;
+  }
+
+  .amount-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    margin-top: 10px !important;
+    padding: 8px 0 !important;
+    border-top: 2px solid #333 !important;
+    border-bottom: 2px solid #333 !important;
+  }
+
+  .signatory {
+    margin-top: 80px !important;
+    margin-right: 40px !important;
+    text-align: right !important;
+    font-size: 12px !important;
+  }
+
+  .signatory p {
+    margin: 3px 0 !important;
+  }
+
+  .signatory p:last-child {
+    margin-top: 8px !important;
+  }
+}

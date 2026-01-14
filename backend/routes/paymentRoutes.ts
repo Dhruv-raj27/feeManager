@@ -119,6 +119,10 @@ router.post("/", (req, res) => {
 
   const finalAmount = Math.max(amount - discount_amount, 0);
   const payment_uuid = uuidv4();
+  
+  // Get current IST timestamp
+  const istDate = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+  const payment_date = new Date(istDate).toISOString();
 
   /* ---- INSERT PAYMENT ---- */
   db.prepare(`
@@ -131,8 +135,9 @@ router.post("/", (req, res) => {
       payment_mode,
       quarter_number,
       class_at_time_of_payment,
-      academic_session
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      academic_session,
+      payment_date
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     payment_uuid,
     student_uuid,
@@ -142,7 +147,8 @@ router.post("/", (req, res) => {
     payment_mode,
     quarter_number,
     student.class_standard,
-    academic_session
+    academic_session,
+    payment_date
   );
 
   /* ---- AUTO PROMOTE AFTER Q4 ---- */

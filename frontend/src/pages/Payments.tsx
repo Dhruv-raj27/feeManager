@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import AddPaymentModal from "../components/AddPaymentModal";
+import { formatToIST } from "../utils/dateUtils";
+import ReceiptPreviewModal from "../components/receipts/ReceiptPreviewModal";
+import { fetchReceiptByPaymentUUID } from "../services/receiptService";
 
 interface Payment {
   uuid: string;
@@ -18,6 +21,9 @@ const Payments = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [adding, setAdding] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [ showReceiptModal, setShowReceiptModal ] = useState(false);
+  const [ receiptData, setReceiptData ] = useState<any>(null);
+  const [ loadingReceipt, setLoadingReceipt ] = useState(false);
 
   const loadPayments = async () => {
     if (!token) return;
@@ -51,6 +57,15 @@ const Payments = () => {
     loadPayments();
   }, [token]);
 
+  async function handlePrintReceipt(paymentUUID: string) {
+    try {
+      const data = await fetchReceiptByPaymentUUID(paymentUUID);
+      setReceiptData(data);
+    } catch {
+      alert("Failed to load receipt");
+    }
+  }
+
   return (
     <div style={{ padding: 20 }}>
       <h2>Payments</h2>
@@ -80,7 +95,7 @@ const Payments = () => {
           <tbody>
             {payments.map((p) => (
               <tr key={p.uuid}>
-                <td>{new Date(p.payment_date).toLocaleString()}</td>
+                <td>{formatToIST(p.payment_date)}</td>
                 <td>{p.student_name}</td>
                 <td>{p.class_at_time_of_payment}</td>
                 <td>Q{p.quarter_number}</td>
@@ -90,6 +105,13 @@ const Payments = () => {
                 <td>
                   <button onClick={() => deletePayment(p.uuid)}>
                     🗑 Delete
+                  </button>
+                  <button 
+                    onClick={() => handlePrintReceipt(p.uuid)}
+                    className="btn-primary"
+                    disabled={loadingReceipt}
+                  >
+                    {loadingReceipt ? 'Loading...' : 'Print Receipt'}
                   </button>
                 </td>
               </tr>
@@ -102,6 +124,12 @@ const Payments = () => {
         <AddPaymentModal
           onClose={() => setAdding(false)}
           onSuccess={loadPayments}
+        />
+      )}
+      {receiptData && (
+        <ReceiptPreviewModal
+          data={receiptData}
+          onClose={() => setReceiptData(null)}
         />
       )}
     </div>
