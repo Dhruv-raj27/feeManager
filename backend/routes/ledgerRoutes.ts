@@ -62,6 +62,11 @@ router.get("/:student_uuid", (req, res) => {
     const paidMap = new Map<number, number>();
     payments.forEach(p => paidMap.set(p.quarter_number, p.paid));
 
+    // Determine if student was new or existing based on Q1 payment amount
+    // If Q1 payment exists and is >= (registration_fee + basic_fee), student was new admission
+    const q1Payment = paidMap.get(1) ?? 0;
+    const wasNewAdmission = q1Payment > 0 && q1Payment >= (fee.registration_fee + fee.basic_fee - 100); // 100 tolerance for discounts
+
     const quarters = [];
     let totalExpected = 0;
     let totalPaid = 0;
@@ -69,7 +74,7 @@ router.get("/:student_uuid", (req, res) => {
     for (let q = 1; q <= 4; q++) {
         let expected = 0;
 
-        if (student.is_new_admission === 1) {
+        if (wasNewAdmission) {
             if (q === 1) expected = fee.registration_fee + fee.basic_fee;
             else if (q === 2 || q === 3) expected = fee.basic_fee + fee.exam_fee;
             else if (q === 4) expected = fee.basic_fee;

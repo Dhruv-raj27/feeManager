@@ -54,25 +54,36 @@ const FeeStructurePage = () => {
                         <th>Basic</th>
                         <th>Exam</th>
                         <th>Renewal</th>
-                        <th>Total</th>
+                        <th>Q1 (New)</th>
+                        <th>Q2</th>
+                        <th>Q3</th>
+                        <th>Q4</th>
+                        <th>Total (New)</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                {fees.map((f) => (
+                {fees.map((f) => {
+                    // Calculate quarterly amounts for new admission
+                    const q1New = f.registration_fee + f.basic_fee;
+                    const q2 = f.basic_fee + f.exam_fee;
+                    const q3 = f.basic_fee + f.exam_fee;
+                    const q4 = f.basic_fee;
+                    const totalNew = q1New + q2 + q3 + q4;
+                    
+                    return (
                     <tr key={f.class_standard}>
                     <td>{f.class_standard}</td>
                     <td>{f.registration_fee}</td>
                     <td>{f.basic_fee}</td>
                     <td>{f.exam_fee}</td>
                     <td>{f.renewal_fee}</td>
-                    <td>
-                        {f.registration_fee +
-                        f.basic_fee +
-                        f.exam_fee +
-                        f.renewal_fee}
-                    </td>
+                    <td>{q1New}</td>
+                    <td>{q2}</td>
+                    <td>{q3}</td>
+                    <td>{q4}</td>
+                    <td>{totalNew}</td>
                     <td>
                         <button onClick={() => setEditing(f)}>Edit</button>
                         <button onClick={() => handleDelete(f.class_standard)}>
@@ -80,7 +91,8 @@ const FeeStructurePage = () => {
                         </button>
                     </td>
                     </tr>
-                ))}
+                    );
+                })}
                 </tbody>
             </table>
 

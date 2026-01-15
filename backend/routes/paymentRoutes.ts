@@ -44,23 +44,6 @@ router.post("/", (req, res) => {
 
   const academic_session = settings.current_academic_session;
 
-
-  /* ---- PREVENT DUPLICATE PAYMENT ---- */
-  const existing = db
-    .prepare(
-      `SELECT 1 FROM payments
-       WHERE student_uuid = ?
-         AND academic_session = ?
-         AND quarter_number = ?`
-    )
-    .get(student_uuid, academic_session, quarter_number);
-
-  if (existing) {
-    return res.status(400).json({
-      message: `Payment already recorded for Quarter ${quarter_number}`,
-    });
-  }
-
   /* ---- FETCH STUDENT ---- */
   const student = db
     .prepare(

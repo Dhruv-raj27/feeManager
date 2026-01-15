@@ -3,6 +3,7 @@ import { useAuth } from "../auth/AuthContext";
 import { fetchStudents, type Student } from "../services/studentService";
 import { createPayment } from "../services/paymentService";
 import { fetchFeeStructures, type FeeStructure } from "../services/feeService";
+import { fetchStudentLedger } from "../services/ledgerService";
 
 const AddPaymentModal = ({
   onClose,
@@ -26,6 +27,7 @@ const AddPaymentModal = ({
   });
 
   const [calculatedAmount, setCalculatedAmount] = useState<number>(0);
+  const [remainingDue, setRemainingDue] = useState<number | null>(null);
 
   /* ---------- LOAD DATA ---------- */
   useEffect(() => {
@@ -33,6 +35,35 @@ const AddPaymentModal = ({
     fetchStudents(token).then(setStudents);
     fetchFeeStructures(token).then(setFees);
   }, [token]);
+
+  /* ---------- FETCH REMAINING DUE FOR SELECTED QUARTER ---------- */
+  useEffect(() => {
+    const fetchDueAmount = async () => {
+      if (!token || !form.student_uuid || !form.quarter_number) {
+        setRemainingDue(null);
+        return;
+      }
+
+      try {
+        const ledgerData = await fetchStudentLedger(form.student_uuid, token);
+        const quarter = ledgerData.quarters?.find(
+          (q: any) => q.quarter === Number(form.quarter_number)
+        );
+        
+        if (quarter) {
+          const due = quarter.expected - quarter.paid;
+          setRemainingDue(due > 0 ? due : 0);
+        } else {
+          setRemainingDue(null);
+        }
+      } catch (err) {
+        console.error("Failed to fetch ledger:", err);
+        setRemainingDue(null);
+      }
+    };
+
+    fetchDueAmount();
+  }, [form.student_uuid, form.quarter_number, token]);
 
   /* ---------- CALCULATE AMOUNT ---------- */
   useEffect(() => {
@@ -176,7 +207,20 @@ const AddPaymentModal = ({
 
       {/* ---- CALCULATED AMOUNT ---- */}
       <div style={{ marginTop: 10, fontWeight: "bold" }}>
-        Payable Amount: ₹{calculatedAmount}
+        {remainingDue !== null && remainingDue > 0 ? (
+          <>
+            <div style={{ color: "#f39c12" }}>
+              ⚠️ Remaining Due for this Quarter: ₹{remainingDue}
+            </div>
+            <div>Full Quarter Amount: ₹{calculatedAmount}</div>
+          </>
+        ) : remainingDue === 0 ? (
+          <div style={{ color: "#2ecc71" }}>
+            ✓ This quarter is fully paid
+          </div>
+        ) : (
+          <div>Payable Amount: ₹{calculatedAmount}</div>
+        )}
       </div>
 
       <br />
