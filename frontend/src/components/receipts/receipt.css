@@ -1,30 +1,34 @@
 @page {
-  size: A4 landscape;
-  margin: 10mm;
+  size: A4 portrait;
+  margin: 0;
 }
 
 .print-root {
   display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
 }
 
 .receipt-half {
-  width: 50%;
-  padding: 14px;
-  font-size: 13px;
+  width: 100%;
+  height: 50%;
+  padding: 12px 25px;
+  font-size: 14px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .receipt-half h2 {
-  font-size: 18px;
+  font-size: 20px;
   margin: 0 0 4px 0;
   font-weight: bold;
   text-align: center;
 }
 
 .receipt-half h3 {
-  font-size: 16px;
+  font-size: 18px;
   margin: 8px 0 6px 0;
   font-weight: bold;
   text-align: center;
@@ -34,14 +38,14 @@
 .receipt-half i {
   display: block;
   text-align: center;
-  font-size: 13px;
+  font-size: 14px;
   margin-bottom: 6px;
 }
 
 .receipt-half p {
   margin: 5px 0;
-  line-height: 1.4;
-  font-size: 13px;
+  line-height: 1.5;
+  font-size: 14px;
 }
 
 .receipt-half p:first-of-type {
@@ -64,27 +68,28 @@
 }
 
 .divider {
-  width: 2px;
-  border-left: 2px dashed #999;
-  margin: 0 4px;
+  height: 2px;
+  border-top: 2px dashed #999;
+  margin: 0;
+  width: 100%;
 }
 
 .amount-row {
   display: flex;
   justify-content: space-between;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   margin-top: 10px;
-  padding: 8px 0;
+  padding: 10px 0;
   border-top: 2px solid #333;
   border-bottom: 2px solid #333;
 }
 
 .signatory {
-  margin-top: 80px;
-  margin-right: 40px;
+  margin-top: 40px;
+  margin-right: 50px;
   text-align: right;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .signatory p {
@@ -95,6 +100,53 @@
   margin-top: 8px;
 }
 
+/* Guardian Copy (First Half) - Smaller fonts */
+.print-root > .receipt-half:first-child {
+  font-size: 12px;
+  padding: 10px 20px;
+}
+
+.print-root > .receipt-half:first-child h2 {
+  font-size: 16px;
+  margin: 0 0 3px 0;
+}
+
+.print-root > .receipt-half:first-child h3 {
+  font-size: 14px;
+  margin: 6px 0 4px 0;
+}
+
+.print-root > .receipt-half:first-child i {
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.print-root > .receipt-half:first-child p {
+  font-size: 12px;
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.print-root > .receipt-half:first-child hr {
+  margin: 6px 0;
+}
+
+.print-root > .receipt-half:first-child .amount-row {
+  font-size: 15px;
+  margin-top: 8px;
+  padding: 8px 0;
+}
+
+.print-root > .receipt-half:first-child .signatory {
+  margin-top: auto;
+  margin-right: 0;
+  margin-left: auto;
+  text-align: right;
+  font-size: 11px;
+  width: 35%;
+  padding-right: 10px;
+}
+
 @media screen {
   .print-root {
     max-width: 100%;
@@ -103,8 +155,13 @@
 
 @media print {
   @page {
-    size: A4 landscape;
-    margin: 10mm;
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   body * {
@@ -122,26 +179,30 @@
     top: 0 !important;
     width: 100% !important;
     display: flex !important;
+    flex-direction: column !important;
     page-break-after: avoid !important;
   }
 
   .receipt-half {
-    width: 50% !important;
-    padding: 14px 18px !important;
-    font-size: 13px !important;
+    width: 100% !important;
+    height: 50% !important;
+    padding: 12px 25px !important;
+    font-size: 14px !important;
     box-sizing: border-box !important;
     page-break-inside: avoid !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .receipt-half h2 {
-    font-size: 18px !important;
+    font-size: 20px !important;
     margin: 0 0 4px 0 !important;
     font-weight: bold !important;
     text-align: center !important;
   }
 
   .receipt-half h3 {
-    font-size: 16px !important;
+    font-size: 18px !important;
     margin: 8px 0 6px 0 !important;
     font-weight: bold !important;
     text-align: center !important;
@@ -151,14 +212,14 @@
   .receipt-half i {
     display: block !important;
     text-align: center !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
     margin-bottom: 6px !important;
   }
 
   .receipt-half p {
     margin: 5px 0 !important;
-    line-height: 1.4 !important;
-    font-size: 13px !important;
+    line-height: 1.5 !important;
+    font-size: 14px !important;
   }
 
   .receipt-half hr {
@@ -168,27 +229,28 @@
   }
 
   .divider {
-    width: 2px !important;
-    border-left: 2px dashed #666 !important;
-    margin: 0 6px !important;
+    height: 2px !important;
+    border-top: 2px dashed #666 !important;
+    margin: 0 !important;
+    width: 100% !important;
   }
 
   .amount-row {
     display: flex !important;
     justify-content: space-between !important;
-    font-size: 16px !important;
+    font-size: 18px !important;
     font-weight: bold !important;
     margin-top: 10px !important;
-    padding: 8px 0 !important;
+    padding: 10px 0 !important;
     border-top: 2px solid #333 !important;
     border-bottom: 2px solid #333 !important;
   }
 
   .signatory {
-    margin-top: 80px !important;
-    margin-right: 40px !important;
+    margin-top: 40px !important;
+    margin-right: 50px !important;
     text-align: right !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
   }
 
   .signatory p {
@@ -197,5 +259,52 @@
 
   .signatory p:last-child {
     margin-top: 8px !important;
+  }
+
+  /* Guardian Copy (First Half) - Smaller fonts for print */
+  .print-root > .receipt-half:first-child {
+    font-size: 12px !important;
+    padding: 10px 20px !important;
+  }
+
+  .print-root > .receipt-half:first-child h2 {
+    font-size: 16px !important;
+    margin: 0 0 3px 0 !important;
+  }
+
+  .print-root > .receipt-half:first-child h3 {
+    font-size: 14px !important;
+    margin: 6px 0 4px 0 !important;
+  }
+
+  .print-root > .receipt-half:first-child i {
+    font-size: 12px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .print-root > .receipt-half:first-child p {
+    font-size: 12px !important;
+    margin: 4px 0 !important;
+    line-height: 1.4 !important;
+  }
+
+  .print-root > .receipt-half:first-child hr {
+    margin: 6px 0 !important;
+  }
+
+  .print-root > .receipt-half:first-child .amount-row {
+    font-size: 15px !important;
+    margin-top: 8px !important;
+    padding: 8px 0 !important;
+  }
+
+  .print-root > .receipt-half:first-child .signatory {
+    margin-top: auto !important;
+    margin-right: 0 !important;
+    margin-left: auto !important;
+    text-align: right !important;
+    font-size: 11px !important;
+    width: 35% !important;
+    padding-right: 10px !important;
   }
 }
