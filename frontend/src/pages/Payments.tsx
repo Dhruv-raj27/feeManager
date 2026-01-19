@@ -21,7 +21,6 @@ const Payments = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [adding, setAdding] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [ showReceiptModal, setShowReceiptModal ] = useState(false);
   const [ receiptData, setReceiptData ] = useState<any>(null);
   const [ loadingReceipt, setLoadingReceipt ] = useState(false);
 
@@ -58,11 +57,14 @@ const Payments = () => {
   }, [token]);
 
   async function handlePrintReceipt(paymentUUID: string) {
+    setLoadingReceipt(true);
     try {
       const data = await fetchReceiptByPaymentUUID(paymentUUID);
       setReceiptData(data);
     } catch {
       alert("Failed to load receipt");
+    } finally {
+      setLoadingReceipt(false);
     }
   }
 

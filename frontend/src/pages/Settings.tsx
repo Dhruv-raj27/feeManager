@@ -5,7 +5,7 @@ import { fetchSettings, updateSettings } from "../services/settingsService";
 const Settings = () => {
     const { token } = useAuth();
     const [ form, setForm ] = useState<any>(null);
-    const [ loading, setLoading ] = useState(false);
+    const [ , setLoading ] = useState(false);
     const [hasSettings, setHasSettings] = useState(false);
 
     useEffect(() => {
