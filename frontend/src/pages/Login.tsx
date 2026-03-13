@@ -10,19 +10,35 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    try {
-      const data = await login(email, password);
-      console.log("LOGIN RESPONSE:", data);
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
 
-      loginUser(data.token, data.user);
-      navigate("/");
+    if (!trimmedEmail || !trimmedPassword) {
+      setError("Email and password are required");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await login(trimmedEmail, trimmedPassword);
+
+      loginUser(data.token, data.user, data.mustChangePassword);
+
+      if (data.mustChangePassword) {
+        navigate("/change-password");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError("Invalid email or password");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,6 +52,7 @@ const Login = () => {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <br /><br />
 
@@ -44,15 +61,19 @@ const Login = () => {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
         <br /><br />
 
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
       </form>
     </div>
   );
 };
 
 export default Login;
+

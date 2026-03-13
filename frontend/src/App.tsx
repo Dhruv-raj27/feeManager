@@ -3,6 +3,7 @@ import { AuthProvider } from "./auth/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 import Login from "./pages/Login";
+import ChangePassword from "./pages/ChangePassword";
 import Dashboard from "./pages/Dashboard";
 import Students from "./pages/Students";
 import AppLayout from "./layouts/AppLayout";
@@ -21,6 +22,7 @@ function App() {
 
           {/* Public */}
           <Route path="/login" element={<Login />} />
+          <Route path="/change-password" element={<ChangePassword />} />
 
           {/* Protected App */}
           <Route

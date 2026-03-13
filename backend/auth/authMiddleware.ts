@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET = "fee_management_secret";
+import { verifyToken } from "./authUtils";
 
 export const authenticate = (
     req: Request,
@@ -12,19 +10,25 @@ export const authenticate = (
 
     if (!authHeader) {
         return res.status(401).json({
-            message: "No token"
+            message: "No token provided"
         });
     }
 
     const token = authHeader.split(" ")[1];
 
+    if (!token) {
+        return res.status(401).json({
+            message: "Malformed authorization header"
+        });
+    }
+
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = verifyToken(token);
         (req as any).user = decoded;
         next();
     } catch {
         return res.status(403).json({
-            message : "Invalid token"
+            message: "Invalid or expired token"
         });
     }
 };

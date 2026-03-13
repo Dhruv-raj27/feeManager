@@ -1,10 +1,11 @@
 import Database from "better-sqlite3";
 import path from "path";
 import os from "os";
+import fs from "fs";
 
 // Cross-platform app data directory
 const appDataPath =
-  process.env.APPDATA ||               // Windows
+  process.env.APPDATA || // Windows
   (process.platform === "darwin"
     ? path.join(os.homedir(), "Library/Application Support")
     : path.join(os.homedir(), ".config"));
@@ -12,7 +13,6 @@ const appDataPath =
 const dbPath = path.join(appDataPath, "FeeManagement", "school_records.db");
 
 // Ensure folder exists
-import fs from "fs";
 fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 
 const db = new Database(dbPath);
@@ -20,6 +20,7 @@ const db = new Database(dbPath);
 export const initDB = () => {
   db.pragma("foreign_keys = ON");
 
+  /* ================= STUDENTS ================= */
   db.prepare(`
     CREATE TABLE IF NOT EXISTS students (
       uuid TEXT PRIMARY KEY,
@@ -28,6 +29,7 @@ export const initDB = () => {
       dob TEXT NOT NULL,
       gender TEXT NOT NULL,
       class_standard TEXT NOT NULL,
+      admission_session TEXT NOT NULL,
       is_new_admission INTEGER DEFAULT 1,
       father_name TEXT,
       father_contact TEXT,
@@ -38,6 +40,7 @@ export const initDB = () => {
     )
   `).run();
 
+  /* ================= FEE STRUCTURE ================= */
   db.prepare(`
     CREATE TABLE IF NOT EXISTS fee_structure (
       class_standard TEXT PRIMARY KEY,
@@ -50,6 +53,7 @@ export const initDB = () => {
     )
   `).run();
 
+  /* ================= PAYMENTS ================= */
   db.prepare(`
     CREATE TABLE IF NOT EXISTS payments (
       uuid TEXT PRIMARY KEY,
@@ -70,6 +74,7 @@ export const initDB = () => {
     )
   `).run();
 
+  /* ================= SCHOOL SETTINGS ================= */
   db.prepare(`
     CREATE TABLE IF NOT EXISTS school_settings (
       id INTEGER PRIMARY KEY CHECK (id = 1),
@@ -78,11 +83,13 @@ export const initDB = () => {
       contact_number TEXT,
       email TEXT,
       logo_path TEXT,
+      current_academic_session TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
 
+  /* ================= USER ROLES ================= */
   db.prepare(`
     CREATE TABLE IF NOT EXISTS user_roles (
       uuid TEXT PRIMARY KEY,
@@ -90,32 +97,57 @@ export const initDB = () => {
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       role TEXT NOT NULL,
+      must_change_password INTEGER DEFAULT 0,
       current_academic_session TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
 
-  console.log("Database initialized at:", dbPath);
+  /* ================= MIGRATION: school_settings ================= */
+  const schoolColumns = db.prepare(
+    `PRAGMA table_info(school_settings)`
+  ).all();
+
+  const hasAcademicSession = schoolColumns.some(
+    (col: any) => col.name === "current_academic_session"
+  );
+
+  if (!hasAcademicSession) {
+    db.prepare(`
+      ALTER TABLE school_settings
+      ADD COLUMN current_academic_session TEXT
+    `).run();
+
+    console.log("✅ Migrated: added current_academic_session to school_settings");
+  }
+
+  /* ================= MIGRATION: user_roles.must_change_password ================= */
+  const userColumns = db.prepare(
+    `PRAGMA table_info(user_roles)`
+  ).all();
+
+  const hasMustChangePassword = userColumns.some(
+    (col: any) => col.name === "must_change_password"
+  );
+
+  if (!hasMustChangePassword) {
+    db.prepare(`
+      ALTER TABLE user_roles
+      ADD COLUMN must_change_password INTEGER DEFAULT 0
+    `).run();
+
+    console.log("✅ Migrated: added must_change_password to user_roles");
+  }
+
+  /* ================= DEFAULT SCHOOL ROW ================= */
+  db.prepare(`
+    INSERT OR IGNORE INTO school_settings (
+      id, school_name, current_academic_session
+    ) VALUES (1, 'My School', '2025-2026')
+  `).run();
+
+  console.log("✅ Database initialized at:", dbPath);
 };
-
-// const columns = db.prepare(`PRAGMA table_info(school_settings)`).all();
-// const hasAcademicSession = columns.some(
-//   (col: any) => col.name === "current_academic_session"
-// );
-
-// if (!hasAcademicSession) {
-//   db.prepare(`
-//     ALTER TABLE school_settings
-//     ADD COLUMN current_academic_session TEXT
-//   `).run();
-// }
-
-// // Ensure single row exists
-// db.prepare(`
-//   INSERT OR IGNORE INTO school_settings (
-//     id, school_name, current_academic_session
-//   ) VALUES (1, 'My School', '2025-2026')
-// `).run();
 
 export default db;

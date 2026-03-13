@@ -7,7 +7,11 @@ export const initAdminUser = async () => {
 
     if (adminExists) return;
 
-    const passwordHash = await hashPassword("Admin.Aadharshila@001");
+    // Temporary first-login password — admin MUST change this on first login
+    const tempPassword = "ChangeMe@FirstLogin";
+    const passwordHash = await hashPassword(tempPassword);
+
+    const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || "admin@school.local";
 
     db.prepare(`
         INSERT INTO user_roles (
@@ -15,15 +19,18 @@ export const initAdminUser = async () => {
         full_name,
         email,
         password_hash,
-        role
+        role,
+        must_change_password
         )
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?)
         `).run(
             uuidv4(),
             "System Administrator",
-            "admin@aadharshila.local",
+            adminEmail,
             passwordHash,
-            "Admin"
+            "Admin",
+            1  // must change password on first login
         );
-    console.log("Default admin user created!");
-};
+    console.log("Default admin user created! Temporary password: ChangeMe@FirstLogin");
+    console.log("⚠️  Admin MUST change this password on first login.");
+};

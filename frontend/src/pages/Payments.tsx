@@ -57,9 +57,10 @@ const Payments = () => {
   }, [token]);
 
   async function handlePrintReceipt(paymentUUID: string) {
+    if (!token) return;
     setLoadingReceipt(true);
     try {
-      const data = await fetchReceiptByPaymentUUID(paymentUUID);
+      const data = await fetchReceiptByPaymentUUID(paymentUUID, token);
       setReceiptData(data);
     } catch {
       alert("Failed to load receipt");
