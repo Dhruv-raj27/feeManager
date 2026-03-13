@@ -140,6 +140,17 @@ export const initDB = () => {
     console.log("✅ Migrated: added must_change_password to user_roles");
   }
 
+  /* ================= MIGRATION: payments reference columns ================= */
+  const paymentColumns = db.prepare(`PRAGMA table_info(payments)`).all();
+
+  const hasReferenceNumber = paymentColumns.some((col: any) => col.name === "reference_number");
+  if (!hasReferenceNumber) {
+    db.prepare(`ALTER TABLE payments ADD COLUMN reference_number TEXT`).run();
+    db.prepare(`ALTER TABLE payments ADD COLUMN instrument_number TEXT`).run();
+    db.prepare(`ALTER TABLE payments ADD COLUMN bank_name TEXT`).run();
+    console.log("✅ Migrated: added reference_number, instrument_number, bank_name to payments");
+  }
+
   /* ================= DEFAULT SCHOOL ROW ================= */
   db.prepare(`
     INSERT OR IGNORE INTO school_settings (

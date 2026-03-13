@@ -6,6 +6,9 @@ export interface PaymentPayload {
   payment_mode: string;
   discount_amount?: number;
   discount_reason?: string;
+  reference_number?: string;    // For UPI/RTGS/NEFT
+  instrument_number?: string;   // For Cheque/DD
+  bank_name?: string;           // For RTGS/NEFT/Cheque/DD
 }
 
 export const createPayment = async (

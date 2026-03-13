@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { v4 as uuidv4 } from "uuid";
 import db from "../db/initDB";
+import { PAYMENT_MODES } from "../constants";
 
 const router = Router();
 
@@ -12,28 +13,35 @@ router.post("/", (req, res) => {
     payment_mode,
     discount_amount = 0,
     discount_reason = null,
+    reference_number = null,
+    instrument_number = null,
+    bank_name = null,
   } = req.body;
 
   /* ---- VALIDATION ---- */
-  if (
-    !student_uuid ||
-    !payment_mode ||
-    typeof quarter_number !== "number"
-  ) {
+  if (!student_uuid || !payment_mode || typeof quarter_number !== "number") {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
   if (![1, 2, 3, 4].includes(quarter_number)) {
-    return res.status(400).json({ message: "Invalid quarter number" });
+    return res.status(400).json({ message: "Invalid quarter number (must be 1-4)" });
+  }
+
+  // Validate payment mode
+  if (!PAYMENT_MODES.includes(payment_mode as any)) {
+    return res.status(400).json({
+      message: `Invalid payment mode. Allowed: ${PAYMENT_MODES.join(", ")}`,
+    });
+  }
+
+  // Validate discount is non-negative
+  if (typeof discount_amount !== "number" || discount_amount < 0) {
+    return res.status(400).json({ message: "Discount amount must be 0 or positive" });
   }
 
   /* ---- FETCH CURRENT ACADEMIC SESSION ---- */
   const settings = db
-    .prepare(`
-      SELECT current_academic_session
-      FROM school_settings
-      WHERE id = 1
-    `)
+    .prepare(`SELECT current_academic_session FROM school_settings WHERE id = 1`)
     .get() as { current_academic_session: string } | undefined;
 
   if (!settings || !settings.current_academic_session) {
@@ -43,6 +51,18 @@ router.post("/", (req, res) => {
   }
 
   const academic_session = settings.current_academic_session;
+
+  /* ---- CHECK FOR DUPLICATE PAYMENT ---- */
+  const existingPayment = db.prepare(`
+    SELECT uuid FROM payments
+    WHERE student_uuid = ? AND quarter_number = ? AND academic_session = ?
+  `).get(student_uuid, quarter_number, academic_session);
+
+  if (existingPayment) {
+    return res.status(409).json({
+      message: `Payment for Quarter ${quarter_number} in session ${academic_session} already exists for this student`,
+    });
+  }
 
   /* ---- FETCH STUDENT ---- */
   const student = db
@@ -70,7 +90,9 @@ router.post("/", (req, res) => {
     .get(student.class_standard) as { registration_fee: number; renewal_fee: number; basic_fee: number; exam_fee: number } | undefined;
 
   if (!fee) {
-    return res.status(404).json({ message: "Fee structure not found" });
+    return res.status(404).json({
+      message: `Fee structure not found for class "${student.class_standard}"`,
+    });
   }
 
   /* ---- CALCULATE AMOUNT ---- */
@@ -100,11 +122,13 @@ router.post("/", (req, res) => {
     });
   }
 
-  const finalAmount = Math.max(amount - discount_amount, 0);
+  // Cap discount at fee amount
+  const safeDiscount = Math.min(Math.max(discount_amount, 0), amount);
+  const finalAmount = amount - safeDiscount;
   const payment_uuid = uuidv4();
-  
+
   // Get current IST timestamp
-  const istDate = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+  const istDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
   const payment_date = new Date(istDate).toISOString();
 
   /* ---- INSERT PAYMENT ---- */
@@ -119,19 +143,25 @@ router.post("/", (req, res) => {
       quarter_number,
       class_at_time_of_payment,
       academic_session,
-      payment_date
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      payment_date,
+      reference_number,
+      instrument_number,
+      bank_name
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     payment_uuid,
     student_uuid,
     finalAmount,
-    discount_amount,
+    safeDiscount,
     discount_reason,
     payment_mode,
     quarter_number,
     student.class_standard,
     academic_session,
-    payment_date
+    payment_date,
+    reference_number,
+    instrument_number,
+    bank_name
   );
 
   /* ---- AUTO PROMOTE AFTER Q4 ---- */
@@ -158,6 +188,9 @@ router.get("/", (_req, res) => {
       p.payment_mode,
       p.payment_date,
       p.class_at_time_of_payment,
+      p.reference_number,
+      p.instrument_number,
+      p.bank_name,
       s.name AS student_name
     FROM payments p
     JOIN students s ON s.uuid = p.student_uuid
@@ -182,4 +215,4 @@ router.delete("/:uuid", (req, res) => {
   res.json({ message: "Payment deleted successfully" });
 });
 
-export default router;
+export default router;

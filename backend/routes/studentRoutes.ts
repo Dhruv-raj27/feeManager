@@ -1,6 +1,13 @@
 import { Router } from "express";
 import { v4 as uuidv4 } from "uuid";
 import db from "../db/initDB";
+import {
+  CLASS_STANDARDS,
+  GENDERS,
+  NAME_REGEX,
+  PHONE_REGEX,
+  isValidSession,
+} from "../constants";
 
 interface Student {
   uuid: string;
@@ -37,8 +44,59 @@ router.post("/", (req, res) => {
     is_new_admission = 1,
   } = req.body ?? {};
 
+  // Required field presence check
   if (!name || !roll_number || !dob || !gender || !class_standard || !admission_session) {
     return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  // Name validation
+  if (typeof name !== "string" || !NAME_REGEX.test(name.trim())) {
+    return res.status(400).json({ message: "Invalid name format" });
+  }
+
+  // Roll number: must be numeric
+  if (!/^\d+$/.test(String(roll_number).trim())) {
+    return res.status(400).json({ message: "Roll number must be numeric" });
+  }
+
+  // Class validation
+  if (!CLASS_STANDARDS.includes(class_standard as any)) {
+    return res.status(400).json({
+      message: `Invalid class. Allowed: ${CLASS_STANDARDS.join(", ")}`,
+    });
+  }
+
+  // Gender validation
+  if (!GENDERS.includes(gender as any)) {
+    return res.status(400).json({
+      message: `Invalid gender. Allowed: ${GENDERS.join(", ")}`,
+    });
+  }
+
+  // Admission session validation
+  if (!isValidSession(admission_session)) {
+    return res.status(400).json({
+      message: "Admission session must be YYYY-YYYY format (e.g. 2025-2026)",
+    });
+  }
+
+  // Optional phone validation
+  if (father_contact && !PHONE_REGEX.test(father_contact.trim())) {
+    return res.status(400).json({ message: "Invalid father's contact number" });
+  }
+  if (mother_contact && !PHONE_REGEX.test(mother_contact.trim())) {
+    return res.status(400).json({ message: "Invalid mother's contact number" });
+  }
+
+  // Check for duplicate roll number in same class
+  const existingRoll = db.prepare(
+    `SELECT uuid FROM students WHERE roll_number = ? AND class_standard = ?`
+  ).get(String(roll_number).trim(), class_standard);
+
+  if (existingRoll) {
+    return res.status(409).json({
+      message: `Roll number ${roll_number} already exists in class ${class_standard}`,
+    });
   }
 
   const uuid = uuidv4();
