@@ -96,9 +96,11 @@ router.post("/", (req, res) => {
   }
 
   /* ---- CALCULATE AMOUNT ---- */
+  // Snapshot is_new_admission at this exact moment before any promotion
+  const isNewAdmission = student.is_new_admission;
   let amount = 0;
 
-  if (student.is_new_admission === 1) {
+  if (isNewAdmission === 1) {
     if (quarter_number === 1) {
       amount = fee.registration_fee + fee.basic_fee;
     } else if (quarter_number === 2 || quarter_number === 3) {
@@ -131,6 +133,19 @@ router.post("/", (req, res) => {
   const istDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
   const payment_date = new Date(istDate).toISOString();
 
+  /* ---- GENERATE RECEIPT NUMBER (REC-YYYY-NNNN) ---- */
+  // Atomically increment the sequence counter and read back the new value
+  db.prepare(`
+    UPDATE school_settings SET receipt_number_seq = COALESCE(receipt_number_seq, 0) + 1 WHERE id = 1
+  `).run();
+
+  const seqRow = db.prepare(`SELECT receipt_number_seq FROM school_settings WHERE id = 1`)
+    .get() as { receipt_number_seq: number };
+
+  const year = new Date(payment_date).getFullYear();
+  const seq = String(seqRow.receipt_number_seq).padStart(4, "0");
+  const receipt_number = `REC-${year}-${seq}`;
+
   /* ---- INSERT PAYMENT ---- */
   db.prepare(`
     INSERT INTO payments (
@@ -142,12 +157,14 @@ router.post("/", (req, res) => {
       payment_mode,
       quarter_number,
       class_at_time_of_payment,
+      is_new_admission_at_payment,
       academic_session,
       payment_date,
+      receipt_number,
       reference_number,
       instrument_number,
       bank_name
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     payment_uuid,
     student_uuid,
@@ -157,8 +174,10 @@ router.post("/", (req, res) => {
     payment_mode,
     quarter_number,
     student.class_standard,
+    isNewAdmission,
     academic_session,
     payment_date,
+    receipt_number,
     reference_number,
     instrument_number,
     bank_name
@@ -173,6 +192,7 @@ router.post("/", (req, res) => {
 
   res.status(201).json({
     payment_uuid,
+    receipt_number,
     amount_paid: finalAmount,
   });
 });

@@ -52,5 +52,8 @@ export const deleteFeeStructure = async (
         },
     });
 
-    if(!res.ok) throw new Error("Failed to delete fee structure");
+    if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.message || "Failed to delete fee structure");
+    }
 };

@@ -88,9 +88,9 @@ router.post("/", (req, res) => {
     return res.status(400).json({ message: "Invalid mother's contact number" });
   }
 
-  // Check for duplicate roll number in same class
+  // Check for duplicate roll number in same class (excluding soft-deleted)
   const existingRoll = db.prepare(
-    `SELECT uuid FROM students WHERE roll_number = ? AND class_standard = ?`
+    `SELECT uuid FROM students WHERE roll_number = ? AND class_standard = ? AND deleted_at IS NULL`
   ).get(String(roll_number).trim(), class_standard);
 
   if (existingRoll) {
@@ -139,6 +139,7 @@ router.get("/", (_req, res) => {
       father_contact,
       created_at
     FROM students
+    WHERE deleted_at IS NULL
     ORDER BY created_at DESC
   `).all();
 
@@ -148,7 +149,7 @@ router.get("/", (_req, res) => {
 /* ---------------- GET SINGLE STUDENT ---------------- */
 router.get("/:uuid", (req, res) => {
   const student = db
-    .prepare(`SELECT * FROM students WHERE uuid = ?`)
+    .prepare(`SELECT * FROM students WHERE uuid = ? AND deleted_at IS NULL`)
     .get(req.params.uuid);
 
   if (!student) {
@@ -160,7 +161,7 @@ router.get("/:uuid", (req, res) => {
 
 router.put("/:uuid", (req, res) => {
   const existing = db
-    .prepare("SELECT * FROM students WHERE uuid = ?")
+    .prepare("SELECT * FROM students WHERE uuid = ? AND deleted_at IS NULL")
     .get(req.params.uuid) as Student | undefined;
 
   if (!existing) {
@@ -205,8 +206,7 @@ router.put("/:uuid", (req, res) => {
 
 
 
-/* ---------------- DELETE STUDENT ---------------- */
-// DELETE student by UUID
+/* ---------------- DELETE STUDENT (soft-delete) ---------------- */
 router.delete("/:uuid", (req, res) => {
   const { uuid } = req.params;
 
@@ -214,12 +214,13 @@ router.delete("/:uuid", (req, res) => {
     return res.status(400).json({ message: "Student UUID required" });
   }
 
+  // Soft-delete: set deleted_at timestamp so payment history is preserved
   const result = db
-    .prepare("DELETE FROM students WHERE uuid = ?")
+    .prepare("UPDATE students SET deleted_at = CURRENT_TIMESTAMP WHERE uuid = ? AND deleted_at IS NULL")
     .run(uuid);
 
   if (result.changes === 0) {
-    return res.status(404).json({ message: "Student not found" });
+    return res.status(404).json({ message: "Student not found or already deleted" });
   }
 
   res.json({ message: "Student deleted successfully" });

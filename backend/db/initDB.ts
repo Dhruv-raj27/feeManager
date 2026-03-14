@@ -151,6 +151,29 @@ export const initDB = () => {
     console.log("✅ Migrated: added reference_number, instrument_number, bank_name to payments");
   }
 
+  /* ================= MIGRATION: students soft-delete ================= */
+  const studentColumns = db.prepare(`PRAGMA table_info(students)`).all();
+  const hasDeletedAt = studentColumns.some((col: any) => col.name === "deleted_at");
+  if (!hasDeletedAt) {
+    db.prepare(`ALTER TABLE students ADD COLUMN deleted_at DATETIME DEFAULT NULL`).run();
+    console.log("✅ Migrated: added deleted_at to students (soft-delete)");
+  }
+
+  /* ================= MIGRATION: payments is_new_admission snapshot ================= */
+  const hasAdmissionSnapshot = paymentColumns.some((col: any) => col.name === "is_new_admission_at_payment");
+  if (!hasAdmissionSnapshot) {
+    db.prepare(`ALTER TABLE payments ADD COLUMN is_new_admission_at_payment INTEGER DEFAULT NULL`).run();
+    console.log("✅ Migrated: added is_new_admission_at_payment to payments");
+  }
+
+  /* ================= MIGRATION: school_settings receipt_number_seq ================= */
+  const settingsColumns = db.prepare(`PRAGMA table_info(school_settings)`).all();
+  const hasReceiptSeq = settingsColumns.some((col: any) => col.name === "receipt_number_seq");
+  if (!hasReceiptSeq) {
+    db.prepare(`ALTER TABLE school_settings ADD COLUMN receipt_number_seq INTEGER DEFAULT 0`).run();
+    console.log("✅ Migrated: added receipt_number_seq to school_settings");
+  }
+
   /* ================= DEFAULT SCHOOL ROW ================= */
   db.prepare(`
     INSERT OR IGNORE INTO school_settings (

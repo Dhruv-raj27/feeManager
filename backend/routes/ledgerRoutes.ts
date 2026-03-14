@@ -48,7 +48,8 @@ router.get("/:student_uuid", (req, res) => {
             }
 
     const payments = db.prepare
-                (`SELECT quarter_number, SUM(amount_paid) AS paid
+                (`SELECT quarter_number, SUM(amount_paid) AS paid,
+                    MAX(is_new_admission_at_payment) AS admission_snapshot
                     FROM payments
                     WHERE student_uuid = ?
                       AND academic_session = ?
@@ -57,15 +58,19 @@ router.get("/:student_uuid", (req, res) => {
                 .all(student_uuid, academic_session) as {
                     quarter_number: number;
                     paid: number;
+                    admission_snapshot: number | null;
                 }[];
 
     const paidMap = new Map<number, number>();
     payments.forEach(p => paidMap.set(p.quarter_number, p.paid));
 
-    // Determine if student was new or existing based on Q1 payment amount
-    // If Q1 payment exists and is >= (registration_fee + basic_fee), student was new admission
-    const q1Payment = paidMap.get(1) ?? 0;
-    const wasNewAdmission = q1Payment > 0 && q1Payment >= (fee.registration_fee + fee.basic_fee - 100); // 100 tolerance for discounts
+    // Use the is_new_admission snapshot stored at payment time (accurate).
+    // Fall back to the student's current flag for older records that predate the snapshot column.
+    const q1Row = payments.find(p => p.quarter_number === 1);
+    const wasNewAdmission =
+      q1Row?.admission_snapshot != null
+        ? q1Row.admission_snapshot === 1
+        : student.is_new_admission === 1;
 
     const quarters = [];
     let totalExpected = 0;

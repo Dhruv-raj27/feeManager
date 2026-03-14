@@ -125,15 +125,29 @@ router.put("/:class_standard", (req, res) => {
 
 /* delete fee structure by class standard */
 router.delete("/:class_standard", (req, res) => {
+    const { class_standard } = req.params;
+
+    // Guard: don't delete if active students exist in this class
+    const enrolled = db.prepare(`
+        SELECT COUNT(*) AS count FROM students
+        WHERE class_standard = ? AND deleted_at IS NULL
+    `).get(class_standard) as { count: number };
+
+    if (enrolled.count > 0) {
+        return res.status(409).json({
+            message: `Cannot delete fee structure for class "${class_standard}" — ${enrolled.count} student(s) are currently enrolled. Reassign or remove them first.`,
+        });
+    }
+
     const result = db.prepare(`
         DELETE FROM fee_structure WHERE class_standard = ?
-        `).run(req.params.class_standard);
+    `).run(class_standard);
 
-        if(result.changes === 0) {
-            return res.status(404).json({ message: "Fee structure not found" });
-        }
+    if (result.changes === 0) {
+        return res.status(404).json({ message: "Fee structure not found" });
+    }
 
-        res.json({ message: "Fee structure deleted successfully" });
+    res.json({ message: "Fee structure deleted successfully" });
 });
 
 export default router;

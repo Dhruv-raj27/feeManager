@@ -40,7 +40,7 @@ router.get("/summary", (_req, res) => {
           .prepare(`
             SELECT COALESCE(SUM(amount_paid), 0) AS total
             FROM payments
-            WHERE DATE(payment_date) = DATE('now')
+            WHERE DATE(payment_date, '+5 hours', '+30 minutes') = DATE('now', '+5 hours', '+30 minutes')
           `)
           .get() as SumResult
       )?.total ?? 0;
@@ -52,7 +52,7 @@ router.get("/summary", (_req, res) => {
           .prepare(`
             SELECT COALESCE(SUM(amount_paid), 0) AS total
             FROM payments
-            WHERE strftime('%Y-%m', payment_date) = strftime('%Y-%m', 'now')
+            WHERE strftime('%Y-%m', payment_date, '+5 hours', '+30 minutes') = strftime('%Y-%m', 'now', '+5 hours', '+30 minutes')
           `)
           .get() as SumResult
       )?.total ?? 0;

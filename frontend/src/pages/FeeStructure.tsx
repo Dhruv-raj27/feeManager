@@ -36,8 +36,12 @@ const FeeStructurePage = () => {
         if (!token) return;
         if (!confirm("Delete fee structure for this class?")) return;
 
-        await deleteFeeStructure(class_standard, token);
-        loadFees();
+        try {
+            await deleteFeeStructure(class_standard, token);
+            loadFees();
+        } catch (err: any) {
+            alert(err.message || "An error occurred while deleting.");
+        }
     };
 
     return (
