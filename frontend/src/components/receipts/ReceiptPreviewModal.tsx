@@ -1,7 +1,7 @@
-import ReceiptPrintLayout from "./ReceiptPrintLayout";
+import ReceiptPrintLayout, { type ReceiptDataPayload } from "./ReceiptPrintLayout";
 
 interface Props {
-  data: any;
+  data: ReceiptDataPayload;
   onClose: () => void;
 }
 

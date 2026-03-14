@@ -55,8 +55,8 @@ const Ledger = () => {
     try {
       const data = await fetchStudentLedger(studentUUID, token);
       setLedger(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to load ledger");
+    } catch (err: unknown) {
+      setError((err as Error).message || "Failed to load ledger");
     } finally {
       setLoading(false);
     }

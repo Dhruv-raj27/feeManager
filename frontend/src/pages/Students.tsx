@@ -7,7 +7,7 @@ import {
   type Student,
 } from "../services/studentService";
 import { useAuth } from "../auth/AuthContext";
-import EditStudentModal from "../components/editStudentModal";
+import EditStudentModal from "../components/EditStudentModal";
 import AddStudentModal from "../components/AddStudentModal";
 
 const Students = () => {
@@ -23,9 +23,10 @@ const Students = () => {
     setStudents(data);
   };
 
-useEffect(() => {
-  loadStudents();
-}, [token]);
+  useEffect(() => {
+    loadStudents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
 const handleDelete = async (uuid: string) => {
     if (!token) return;
@@ -48,7 +49,7 @@ const handleDelete = async (uuid: string) => {
     };
 
 
-  const handleAdd = async (data: any) => {
+  const handleAdd = async (data: Omit<Student, "uuid">) => {
     if (!token) return;
 
     await addStudent(data, token);

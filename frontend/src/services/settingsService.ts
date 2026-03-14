@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3001";
+import { API_URL } from "../config";
 
 export interface SchoolSettings {
     school_name: string;

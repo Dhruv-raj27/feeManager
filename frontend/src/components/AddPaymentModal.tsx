@@ -58,7 +58,7 @@ const AddPaymentModal = ({
       try {
         const ledgerData = await fetchStudentLedger(form.student_uuid, token);
         const quarter = ledgerData.quarters?.find(
-          (q: any) => q.quarter === Number(form.quarter_number)
+          (q: { quarter: number; expected: number; paid: number }) => q.quarter === Number(form.quarter_number)
         );
         
         if (quarter) {
@@ -188,8 +188,8 @@ const AddPaymentModal = ({
 
       onSuccess();
       onClose();
-    } catch (err: any) {
-      alert(err.message || "Failed to record payment");
+    } catch (err: unknown) {
+      alert((err as Error).message || "Failed to record payment");
     } finally {
       setLoading(false);
     }

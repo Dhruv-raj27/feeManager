@@ -1,7 +1,33 @@
 import "./receipt.css";
 import { formatToIST } from "../../utils/dateUtils";
 
-export default function ReceiptPrintLayout({ data }: { data: any }) {
+export interface ReceiptDataPayload {
+  school: {
+    school_name: string;
+    address: string;
+    contact_number: string;
+    email: string;
+  };
+  receipt: {
+    receipt_number: string;
+    date: string;
+    academic_session: string;
+  };
+  student: {
+    name: string;
+    class_standard: string;
+    roll_number: string;
+    guardian: string;
+  };
+  payment: {
+    quarter_number: number;
+    payment_mode: string;
+    discount_amount: number;
+    amount_paid: number;
+  };
+}
+
+export default function ReceiptPrintLayout({ data }: { data: ReceiptDataPayload }) {
   if (!data) return null;
 
   const { school, receipt, student, payment } = data;
@@ -38,7 +64,14 @@ function ReceiptCopy({
   student,
   payment,
   showSignatory,
-}: any) {
+}: { 
+  title: string; 
+  school: ReceiptDataPayload["school"]; 
+  receipt: ReceiptDataPayload["receipt"]; 
+  student: ReceiptDataPayload["student"]; 
+  payment: ReceiptDataPayload["payment"]; 
+  showSignatory: boolean 
+}) {
   return (
     <div className="receipt-half">
       <h2>{school.school_name}</h2>

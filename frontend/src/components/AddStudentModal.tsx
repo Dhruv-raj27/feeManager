@@ -6,9 +6,10 @@ import {
   PHONE_REGEX,
   isValidSession,
 } from "../constants";
+import { type Student } from "../services/studentService";
 
 interface Props {
-  onSave: (data: any) => void;
+  onSave: (data: Omit<Student, "uuid">) => void;
   onClose: () => void;
 }
 

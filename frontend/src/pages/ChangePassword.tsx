@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import axios from "axios";
 
-const API_URL = "http://localhost:3001";
+
+import { API_URL } from "../config";
 
 const ChangePassword = () => {
   const { token, clearMustChangePassword, logout } = useAuth();
@@ -41,23 +41,28 @@ const ChangePassword = () => {
 
     setLoading(true);
     try {
-      await axios.post(
-        `${API_URL}/auth/change-password`,
-        {
-          currentPassword: currentPassword.trim(),
-          newPassword: newPassword.trim(),
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await fetch(`${API_URL}/auth/change-password`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({
+            currentPassword: currentPassword.trim(),
+            newPassword: newPassword.trim(),
+          })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.message || "Failed to change password");
+      }
 
       clearMustChangePassword();
       alert("Password changed successfully!");
       navigate("/");
-    } catch (err: any) {
-      const msg = err.response?.data?.message || "Failed to change password";
-      setError(msg);
+    } catch (err: unknown) {
+      setError((err as Error).message || "Failed to change password");
     } finally {
       setLoading(false);
     }

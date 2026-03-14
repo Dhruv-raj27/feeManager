@@ -39,8 +39,8 @@ const FeeStructurePage = () => {
         try {
             await deleteFeeStructure(class_standard, token);
             loadFees();
-        } catch (err: any) {
-            alert(err.message || "An error occurred while deleting.");
+        } catch (err: unknown) {
+            alert((err as Error).message || "An error occurred while deleting.");
         }
     };
 

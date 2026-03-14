@@ -21,7 +21,7 @@ router.get("/summary", (_req, res) => {
     const totalStudents =
       (
         db
-          .prepare("SELECT COUNT(*) AS count FROM students")
+          .prepare("SELECT COUNT(*) AS count FROM students WHERE deleted_at IS NULL")
           .get() as CountResult
       )?.count ?? 0;
 

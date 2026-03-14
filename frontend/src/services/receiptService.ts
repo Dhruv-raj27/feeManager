@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3001";
+import { API_URL } from "../config";
 
 export const fetchReceiptByPaymentUUID = async (paymentUUID: string, token: string) => {
     const res = await fetch(

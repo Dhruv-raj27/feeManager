@@ -3,6 +3,7 @@ import { useAuth } from "../auth/AuthContext";
 import AddPaymentModal from "../components/AddPaymentModal";
 import { formatToIST } from "../utils/dateUtils";
 import ReceiptPreviewModal from "../components/receipts/ReceiptPreviewModal";
+import type { ReceiptDataPayload } from "../components/receipts/ReceiptPrintLayout";
 import { fetchReceiptByPaymentUUID } from "../services/receiptService";
 
 interface Payment {
@@ -19,9 +20,9 @@ interface Payment {
 const Payments = () => {
   const { token } = useAuth();
   const [payments, setPayments] = useState<Payment[]>([]);
-  const [adding, setAdding] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [ receiptData, setReceiptData ] = useState<any>(null);
+  const [ adding, setAdding ] = useState(false);
+  const [ loading, setLoading ] = useState(false);
+  const [ receiptData, setReceiptData ] = useState<ReceiptDataPayload | null>(null);
   const [ loadingReceipt, setLoadingReceipt ] = useState(false);
 
   const loadPayments = async () => {
