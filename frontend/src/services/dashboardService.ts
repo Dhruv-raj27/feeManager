@@ -14,6 +14,7 @@ export interface DashboardSummary {
     monthlyCollection: number;
     totalTransactions: number;
     recentTransactions: RecentTransaction[];
+    birthdaysToday?: { name: string; class_standard: string }[];
 }
 
 export async function fetchDashboardSummary(token: string): Promise<DashboardSummary> {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { fetchStudents, type Student } from "../services/studentService";
 import { fetchStudentLedger } from "../services/ledgerService";
+import StudentSelector from "../components/StudentSelector";
 
 /* ---------------- Types ---------------- */
 
@@ -67,25 +68,26 @@ const Ledger = () => {
       <h2>Student Ledger</h2>
 
       {/* Student Selector */}
-      <select
-        value={studentUUID}
-        onChange={(e) => setStudentUUID(e.target.value)}
-      >
-        <option value="">Select Student</option>
-        {students.map((s) => (
-          <option key={s.uuid} value={s.uuid}>
-            {s.name} (Class {s.class_standard})
-          </option>
-        ))}
-      </select>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 20 }}>
+        <StudentSelector 
+          students={students} 
+          selectedUUID={studentUUID} 
+          onSelect={key => {
+            setStudentUUID(key);
+            // Optional: Auto-load ledger when clicking a student
+            // For now, retaining the distinct 'View Ledger' button interaction
+          }} 
+        />
 
-      <button
-        onClick={loadLedger}
-        disabled={!studentUUID || loading}
-        style={{ marginLeft: 10 }}
-      >
-        View Ledger
-      </button>
+        <button
+          className="btn-primary"
+          onClick={loadLedger}
+          disabled={!studentUUID || loading}
+          style={{ padding: "10px 20px" }}
+        >
+          View Ledger
+        </button>
+      </div>
 
       {loading && <p>Loading ledger…</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -103,9 +105,9 @@ const Ledger = () => {
             <thead>
               <tr>
                 <th>Quarter</th>
-                <th>Expected</th>
-                <th>Paid</th>
-                <th>Due</th>
+                <th className="numeric">Expected</th>
+                <th className="numeric">Paid</th>
+                <th className="numeric">Due</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -113,23 +115,16 @@ const Ledger = () => {
               {ledger.quarters.map((q) => (
                 <tr key={q.quarter}>
                   <td>Q{q.quarter}</td>
-                  <td>₹{q.expected}</td>
-                  <td>₹{q.paid}</td>
-                  <td>₹{q.expected - q.paid}</td>
+                  <td className="numeric">₹{q.expected}</td>
+                  <td className="numeric">₹{q.paid}</td>
+                  <td className="numeric">₹{q.expected - q.paid}</td>
                   <td>
                     <span
-                      style={{
-                        padding: "4px 10px",
-                        borderRadius: 12,
-                        fontWeight: 600,
-                        background:
-                          q.status === "PAID"
-                            ? "#2ecc71"
-                            : q.status === "PARTIAL"
-                            ? "#f39c12"
-                            : "#e74c3c",
-                        color: "#000",
-                      }}
+                      className={`badge ${
+                        q.status === 'PAID' ? 'badge-success' :
+                        q.status === 'PARTIAL' ? 'badge-warning' :
+                        'badge-danger'
+                      }`}
                     >
                       {q.status}
                     </span>
@@ -139,12 +134,12 @@ const Ledger = () => {
             </tbody>
           </table>
 
-          <div style={{ marginTop: 20 }}>
-            <strong>Total Expected:</strong> ₹{ledger.totals.expected}
+          <div className="card" style={{ marginTop: 20 }}>
+            <strong>Total Expected:</strong> <span className="numeric">₹{ledger.totals.expected}</span>
             <br />
-            <strong>Total Paid:</strong> ₹{ledger.totals.paid}
+            <strong>Total Paid:</strong> <span className="numeric">₹{ledger.totals.paid}</span>
             <br />
-            <strong>Total Due:</strong> ₹{ledger.totals.due}
+            <strong>Total Due:</strong> <span className="numeric">₹{ledger.totals.due}</span>
           </div>
         </>
       )}

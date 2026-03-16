@@ -178,14 +178,15 @@ const AddStudentModal = ({ onSave, onClose }: Props) => {
       {errors.admission_session && <span style={errorStyle}>{errors.admission_session}</span>}
 
       {/* New Admission */}
-      <label style={{ display: "block", margin: "8px 0" }}>
+      <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0", cursor: "pointer" }}>
         <input type="checkbox"
+          style={{ width: "auto", margin: 0 }}
           checked={form.is_new_admission === 1}
           onChange={e => setForm({
             ...form,
             is_new_admission: e.target.checked ? 1 : 0
           })} />
-        {" "}New Admission
+        New Admission
       </label>
 
       {/* Father */}

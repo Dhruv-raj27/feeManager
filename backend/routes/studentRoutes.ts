@@ -101,28 +101,35 @@ router.post("/", (req, res) => {
 
   const uuid = uuidv4();
 
-  db.prepare(`
-    INSERT INTO students (
-      uuid, name, roll_number, dob, gender, class_standard, admission_session,
-      father_name, father_contact, mother_name, mother_contact,
+  try {
+    db.prepare(`
+      INSERT INTO students (
+        uuid, name, roll_number, dob, gender, class_standard, admission_session,
+        father_name, father_contact, mother_name, mother_contact,
+        is_new_admission
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      uuid,
+      name,
+      roll_number,
+      dob,
+      gender,
+      class_standard,
+      admission_session,
+      father_name,
+      father_contact,
+      mother_name,
+      mother_contact,
       is_new_admission
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    uuid,
-    name,
-    roll_number,
-    dob,
-    gender,
-    class_standard,
-    admission_session,
-    father_name,
-    father_contact,
-    mother_name,
-    mother_contact,
-    is_new_admission
-  );
-
-  res.status(201).json({ uuid });
+    );
+    res.status(201).json({ uuid });
+  } catch (err: any) {
+    if (err.message.includes("UNIQUE constraint failed: students.roll_number")) {
+      return res.status(409).json({ message: `Roll number ${roll_number} is already in use.` });
+    }
+    console.error("INSERT STUDENT ERROR:", err.message);
+    res.status(500).json({ message: "Failed to add student due to a server error." });
+  }
 });
 
 /* ---------------- GET ALL STUDENTS ---------------- */
@@ -214,10 +221,10 @@ router.delete("/:uuid", (req, res) => {
     return res.status(400).json({ message: "Student UUID required" });
   }
 
-  // Soft-delete: set deleted_at timestamp so payment history is preserved
+  // Soft-delete: set deleted_at timestamp and free up roll_number so it can be reused
   const result = db
-    .prepare("UPDATE students SET deleted_at = CURRENT_TIMESTAMP WHERE uuid = ? AND deleted_at IS NULL")
-    .run(uuid);
+    .prepare("UPDATE students SET deleted_at = CURRENT_TIMESTAMP, roll_number = roll_number || '-deleted-' || ? WHERE uuid = ? AND deleted_at IS NULL")
+    .run(uuid, uuid);
 
   if (result.changes === 0) {
     return res.status(404).json({ message: "Student not found or already deleted" });

@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-
-
 import { API_URL } from "../config";
+import toast from "react-hot-toast";
 
 const ChangePassword = () => {
   const { token, clearMustChangePassword, logout } = useAuth();
@@ -59,10 +58,10 @@ const ChangePassword = () => {
       }
 
       clearMustChangePassword();
-      alert("Password changed successfully!");
+      toast.success("Password changed successfully!");
       navigate("/");
     } catch (err: unknown) {
-      setError((err as Error).message || "Failed to change password");
+      toast.error((err as Error).message || "Failed to change password");
     } finally {
       setLoading(false);
     }
@@ -106,7 +105,7 @@ const ChangePassword = () => {
 
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} className="btn-primary">
           {loading ? "Changing..." : "Change Password"}
         </button>
         <button type="button" onClick={logout} style={{ marginLeft: 10 }}>

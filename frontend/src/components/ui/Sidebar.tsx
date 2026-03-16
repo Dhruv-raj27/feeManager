@@ -6,10 +6,11 @@ const linkStyle = ({ isActive }: { isActive: boolean }) => ({
   padding: "10px 16px",
   margin: "6px 0",
   borderRadius: 6,
-  color: isActive ? "#fff" : "#9ca3af",
-  background: isActive ? "#2563eb" : "transparent",
+  color: isActive ? "#fff" : "var(--text-secondary)",
+  background: isActive ? "var(--accent-color)" : "transparent",
   textDecoration: "none",
   fontWeight: 500,
+  transition: "all 0.2s ease"
 });
 
 const Sidebar = () => {
@@ -59,8 +60,9 @@ const Sidebar = () => {
 
 const sidebarStyle = {
   width: 240,
-  background: "linear-gradient(180deg, #020617, #020617cc)",
-  color: "#fff",
+  background: "var(--bg-tertiary)",
+  borderRight: "1px solid var(--border-color)",
+  color: "var(--text-primary)",
   padding: 16,
   display: "flex",
   flexDirection: "column" as const,

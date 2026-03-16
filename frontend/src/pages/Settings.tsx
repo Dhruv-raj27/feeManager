@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { fetchSettings, updateSettings } from "../services/settingsService";
 import { isValidSession, PHONE_REGEX } from "../constants";
+import toast from "react-hot-toast";
 
 interface SchoolSettings {
     school_name: string;
@@ -89,9 +90,9 @@ const Settings = () => {
         try {
             await updateSettings(form, token);
             setOriginalSession(form.current_academic_session.trim());
-            alert("Settings saved successfully");
+            toast.success("Settings saved successfully");
         } catch {
-            alert("Failed to save settings");
+            toast.error("Failed to save settings");
         } finally {
             setLoading(false);
         }

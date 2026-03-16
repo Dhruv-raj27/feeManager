@@ -13,6 +13,11 @@ interface SumResult {
   total: number;
 }
 
+interface StudentBirthday {
+  name: string;
+  class_standard: string;
+}
+
 /* ---------------- Dashboard Summary ---------------- */
 
 router.get("/summary", (_req, res) => {
@@ -73,12 +78,24 @@ router.get("/summary", (_req, res) => {
       `)
       .all();
 
+    /* Birthdays Today */
+    // Note: dob is stored as YYYY-MM-DD
+    const birthdaysToday = (db
+      .prepare(`
+        SELECT name, class_standard
+        FROM students 
+        WHERE deleted_at IS NULL 
+        AND strftime('%m-%d', dob) = strftime('%m-%d', 'now', '+5 hours', '+30 minutes')
+      `)
+      .all() as StudentBirthday[]) || [];
+
     res.json({
       totalStudents,
       todayCollection,
       monthlyCollection,
       totalTransactions,
       recentTransactions,
+      birthdaysToday,
     });
   } catch (error) {
     console.error("Dashboard summary error:", error);

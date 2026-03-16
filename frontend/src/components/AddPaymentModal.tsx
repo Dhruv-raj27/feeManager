@@ -11,6 +11,7 @@ import {
   PAYMENT_MODES_WITH_BANK,
   type PaymentMode,
 } from "../constants";
+import toast from "react-hot-toast";
 
 const AddPaymentModal = ({
   onClose,
@@ -188,20 +189,26 @@ const AddPaymentModal = ({
 
       onSuccess();
       onClose();
+      toast.success("Payment recorded successfully");
     } catch (err: unknown) {
-      alert((err as Error).message || "Failed to record payment");
+      toast.error((err as Error).message || "Failed to record payment");
     } finally {
       setLoading(false);
     }
   };
 
   const fieldStyle = { width: "100%", marginBottom: 4, padding: "8px", boxSizing: "border-box" as const };
-  const errorStyle = { color: "#e74c3c", fontSize: 12, marginBottom: 8, display: "block" };
+  const errorStyle = { color: "var(--danger-color)", fontSize: 12, marginBottom: 8, display: "block" };
   const isQuarterPaid = remainingDue === 0;
 
   return (
-    <div style={modalStyle}>
-      <h3>Record Payment</h3>
+    <>
+      <div className="modal-overlay" style={overlayStyle} onClick={onClose} />
+      <div className="card" style={modalStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <h3 style={{ margin: 0 }}>Record Payment</h3>
+          <button onClick={onClose} style={{ padding: '4px 8px', background: 'transparent' }}>✕</button>
+        </div>
 
       {/* Student */}
       <select value={form.student_uuid} style={fieldStyle}
@@ -309,28 +316,33 @@ const AddPaymentModal = ({
 
       {errors.quarter_paid && <span style={errorStyle}>{errors.quarter_paid}</span>}
 
-      <div style={{ marginTop: 12 }}>
-        <button onClick={handleSave}
+      <div style={{ marginTop: 24, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+        <button onClick={onClose}>Cancel</button>
+        <button onClick={handleSave} className="btn-primary"
           disabled={loading || calculatedAmount === 0 || isQuarterPaid}>
-          {loading ? "Saving..." : "Save"}
+          {loading ? "Saving..." : "Record Payment"}
         </button>
-        <button onClick={onClose} style={{ marginLeft: 8 }}>Cancel</button>
       </div>
     </div>
+    </>
   );
+};
+
+const overlayStyle = {
+  position: "fixed" as const,
+  top: 0, left: 0, right: 0, bottom: 0,
+  zIndex: 999,
 };
 
 const modalStyle = {
   position: "fixed" as const,
-  top: "10%",
+  top: "50%",
   left: "50%",
-  transform: "translateX(-50%)",
-  background: "#222",
-  padding: 20,
-  borderRadius: 8,
-  width: 420,
-  maxHeight: "80vh",
+  transform: "translate(-50%, -50%)",
+  width: 460,
+  maxHeight: "90vh",
   overflowY: "auto" as const,
+  zIndex: 1000,
 };
 
 export default AddPaymentModal;

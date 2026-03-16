@@ -5,6 +5,7 @@ import { formatToIST } from "../utils/dateUtils";
 import ReceiptPreviewModal from "../components/receipts/ReceiptPreviewModal";
 import type { ReceiptDataPayload } from "../components/receipts/ReceiptPrintLayout";
 import { fetchReceiptByPaymentUUID } from "../services/receiptService";
+import toast from "react-hot-toast";
 
 interface Payment {
   uuid: string;
@@ -43,14 +44,18 @@ const Payments = () => {
 
   const deletePayment = async (uuid: string) => {
     if (!token) return;
-    if (!confirm("Delete this payment?")) return;
+    if (!window.confirm("Delete this payment?")) return;
 
-    await fetch(`http://localhost:3001/payments/${uuid}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    loadPayments();
+    try {
+      await fetch(`http://localhost:3001/payments/${uuid}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Payment deleted successfully");
+      loadPayments();
+    } catch {
+      toast.error("Failed to delete payment");
+    }
   };
 
   useEffect(() => {
@@ -59,12 +64,11 @@ const Payments = () => {
 
   async function handlePrintReceipt(paymentUUID: string) {
     if (!token) return;
-    setLoadingReceipt(true);
     try {
       const data = await fetchReceiptByPaymentUUID(paymentUUID, token);
       setReceiptData(data);
     } catch {
-      alert("Failed to load receipt");
+      toast.error("Failed to load receipt");
     } finally {
       setLoadingReceipt(false);
     }
@@ -74,7 +78,9 @@ const Payments = () => {
     <div style={{ padding: 20 }}>
       <h2>Payments</h2>
 
-      <button onClick={() => setAdding(true)}>➕ Record Payment</button>
+      <button onClick={() => setAdding(true)} className="btn-primary">
+        ➕ Record Payment
+      </button>
 
       {loading && <p>Loading payments...</p>}
 
@@ -92,7 +98,7 @@ const Payments = () => {
               <th>Quarter</th>
               <th>Session</th>
               <th>Mode</th>
-              <th>Amount</th>
+              <th className="numeric">Amount</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -104,8 +110,10 @@ const Payments = () => {
                 <td>{p.class_at_time_of_payment}</td>
                 <td>Q{p.quarter_number}</td>
                 <td>{p.academic_session}</td>
-                <td>{p.payment_mode}</td>
-                <td>₹{p.amount_paid}</td>
+                <td>
+                  <span className="badge badge-success">{p.payment_mode}</span>
+                </td>
+                <td className="numeric">₹{p.amount_paid}</td>
                 <td>
                   <button onClick={() => deletePayment(p.uuid)}>
                     🗑 Delete

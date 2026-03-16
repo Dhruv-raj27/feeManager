@@ -43,7 +43,12 @@ const Login = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "100px auto" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ maxWidth: 300, width: "100%", padding: 20 }}>
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+        <h1 style={{ margin: 0, color: "var(--accent-color)" }}>Fee Management</h1>
+        <p style={{ margin: "4px 0 0 0", color: "var(--text-secondary)" }}>System Administrator</p>
+      </div>
       <h2>Login</h2>
 
       <form onSubmit={handleSubmit}>
@@ -71,6 +76,7 @@ const Login = () => {
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+      </div>
     </div>
   );
 };
