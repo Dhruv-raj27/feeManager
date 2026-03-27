@@ -7,13 +7,50 @@
   "type": "commonjs",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
+    "build:frontend": "npm run build --prefix frontend",
+    "build:backend": "npm run build --prefix backend",
+    "build:electron": "tsc --project electron/tsconfig.json",
+    "build:all": "npm run build:frontend && npm run build:backend && npm run build:electron",
+    "pack": "npm run build:all && electron-builder --dir && npm rebuild",
+    "dist": "npm run build:all && electron-builder && npm rebuild",
     "electron": "electron ."
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "electron": "^39.2.7",
+    "electron-builder": "^25.1.8",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "build": {
+    "appId": "com.school.feemanagement",
+    "productName": "Fee Management System",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/dist/**/*",
+      "frontend/dist/**/*",
+      "backend/dist/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "electron/dist/main.js"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    }
   }
 }

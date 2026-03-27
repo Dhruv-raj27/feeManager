@@ -8,12 +8,15 @@ function startBackend() {
   // In production (packaged app), require and run the backend directly
   // In development, you'll run the backend separately
   if (app.isPackaged) {
-    const serverPath = path.join(__dirname, "..", "backend", "server.js");
+    const serverPath = path.join(__dirname, "..", "..", "backend", "dist", "server.js");
     
     console.log("Starting backend server at:", serverPath);
     
     try {
       process.env.NODE_ENV = "production";
+      // Set env vars that are normally loaded from .env (not packaged in ASAR)
+      process.env.JWT_SECRET = process.env.JWT_SECRET || "fee_mgmt_s3cur3_k3y_@adh@rsh1l@_2025!";
+      process.env.DEFAULT_ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL || "admin@aadharshila.local";
       require(serverPath);
       backendStarted = true;
       console.log("Backend server loaded successfully");
@@ -43,7 +46,7 @@ function createWindow() {
   // In development, load from Vite dev server
   // In production, load from built files
   if (app.isPackaged) {
-    const indexPath = path.join(__dirname, "..", "frontend", "index.html");
+    const indexPath = path.join(__dirname, "..", "..", "frontend", "dist", "index.html");
     mainWindow.loadFile(indexPath);
   } else {
     mainWindow.loadURL("http://localhost:5173");
