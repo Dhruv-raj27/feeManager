@@ -14,6 +14,7 @@ import paymentRoutes from "./routes/paymentRoutes";
 import settingsRoutes from "./routes/settingsRoutes";
 import ledgerRoutes from "./routes/ledgerRoutes";
 import receiptRoutes from "./routes/receiptRoutes";
+import userRoutes from "./routes/userRoutes";
 
 const app = express();
 const PORT = 3001;
@@ -42,6 +43,7 @@ async function startServer() {
   app.use("/settings", authenticate, settingsRoutes);
   app.use("/ledger", authenticate, ledgerRoutes);
   app.use("/receipts", authenticate, receiptRoutes);
+  app.use("/users", authenticate, userRoutes);
 
   app.listen(PORT, () => {
     console.log(`Backend running on http://localhost:${PORT}`);

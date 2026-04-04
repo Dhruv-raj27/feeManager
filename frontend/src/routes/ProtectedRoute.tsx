@@ -2,7 +2,12 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { type ReactElement } from "react";
 
-const ProtectedRoute = ({ children }: { children: ReactElement }) => {
+interface Props {
+    children: ReactElement;
+    allowedRoles?: string[];
+}
+
+const ProtectedRoute = ({ children, allowedRoles }: Props) => {
     const { user, mustChangePassword } = useAuth();
 
     if (!user) {
@@ -13,7 +18,11 @@ const ProtectedRoute = ({ children }: { children: ReactElement }) => {
         return <Navigate to="/change-password" replace />;
     }
 
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+        return <Navigate to="/dashboard" replace />;
+    }
+
     return children;
 };
 
-export default ProtectedRoute;
+export default ProtectedRoute;

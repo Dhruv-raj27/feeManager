@@ -1,6 +1,6 @@
 {
   "name": "fee_management",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "School Fee Management Desktop System",
   "main": "electron/dist/main.js",
   "private": true,

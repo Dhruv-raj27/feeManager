@@ -76,10 +76,20 @@ const Login = () => {
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+
+      <details style={{ marginTop: 24, fontSize: "0.8rem", color: "var(--text-secondary)", borderTop: "1px solid var(--border-color)", paddingTop: 12 }}>
+        <summary style={{ cursor: "pointer", userSelect: "none" }}>First time setup?</summary>
+        <div style={{ marginTop: 8, padding: "10px 12px", background: "var(--card-bg)", borderRadius: 6, border: "1px solid var(--border-color)" }}>
+          <p style={{ margin: "0 0 6px 0" }}>Use the default admin credentials on a fresh install:</p>
+          <p style={{ margin: "2px 0", fontFamily: "monospace" }}>📧 admin@aadharshila.local</p>
+          <p style={{ margin: "2px 0", fontFamily: "monospace" }}>🔑 ChangeMe@FirstLogin</p>
+          <p style={{ margin: "8px 0 0 0", fontSize: "0.75rem", color: "var(--text-secondary)" }}>You will be prompted to set a new password after logging in.</p>
+        </div>
+      </details>
+
       </div>
     </div>
   );
 };
 
 export default Login;
-

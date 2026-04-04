@@ -34,11 +34,27 @@ function App() {
           >
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/students" element={<Students />} />
-            <Route path="/fee-structure" element={<FeeStructure />} />
-            <Route path="/payments" element={<Payments />} />
-            <Route path="/ledger" element={<Ledger />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/students"  element={<Students />} />
+            <Route path="/fee-structure" element={
+              <ProtectedRoute allowedRoles={["Admin", "Accountant"]}>
+                <FeeStructure />
+              </ProtectedRoute>
+            } />
+            <Route path="/payments" element={
+              <ProtectedRoute allowedRoles={["Admin", "Accountant"]}>
+                <Payments />
+              </ProtectedRoute>
+            } />
+            <Route path="/ledger" element={
+              <ProtectedRoute allowedRoles={["Admin", "Accountant"]}>
+                <Ledger />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <Settings />
+              </ProtectedRoute>
+            } />
           </Route>
 
           {/* Fallback */}
